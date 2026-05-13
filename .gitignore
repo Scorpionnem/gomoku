@@ -2,5 +2,7 @@ obj/
 *.o
 *.d
 
+external/
+
 gomoku
 en.subject.pdf

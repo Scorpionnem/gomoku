@@ -1,31 +1,14 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   stb_image.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/13 15:41:24 by mbatty            #+#    #+#             */
-/*   Updated: 2026/05/13 18:44:20 by mbatty           ###   ########.fr       */
+/*   Created: 2025/09/27 13:43:35 by mbatty            #+#    #+#             */
+/*   Updated: 2025/10/04 22:32:58 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Window.hpp"
-
-int	main(void)
-{
-	Window	win;
-
-	win.open("Gomoku", 512, 512);
-
-	while (1)
-	{
-		const Window::Events	&ev = win.poll_events();
-
-		if (ev.quit() || ev.key(SDLK_ESCAPE))
-			break ;
-
-		win.render();
-	}
-	return (0);
-}
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"

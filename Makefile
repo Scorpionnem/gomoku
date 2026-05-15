@@ -89,7 +89,7 @@ glad: $(EXTERNAL_DIR)
 
 $(NAME): $(OBJS)
 	@echo Compiling $(NAME)
-	@$(CXX) $(CXXFLAGS) $(LFLAGS) $(INCLUDE_DIRS) -o $@ $^
+	@$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o $@ $^ $(LFLAGS)
 
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)

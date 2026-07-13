@@ -1,31 +1,5 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/13 15:41:24 by mbatty            #+#    #+#             */
-/*   Updated: 2026/05/13 18:44:20 by mbatty           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "Window.hpp"
-
-int	main(void)
+int	main(int ac, char **av)
 {
-	Window	win;
-
-	win.open("Gomoku", 512, 512);
-
-	while (1)
-	{
-		const Window::Events	&ev = win.poll_events();
-
-		if (ev.quit() || ev.key(SDLK_ESCAPE))
-			break ;
-
-		win.render();
-	}
+	(void)ac;(void)av;
 	return (0);
 }

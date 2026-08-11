@@ -1,0 +1,20 @@
+[
+ {
+  "directory": "/home/sabartho/42SPE/Gomoku",
+  "arguments": [
+   "c++",
+   "-Wall",
+   "-Werror",
+   "-Wextra",
+   "-g",
+   "-I",
+   "./includes/manda/",
+   "-std=c++20",
+   "-o",
+   ".build/main.o",
+   "-c",
+   "srcs/manda/main.cpp"
+  ],
+  "file": "srcs/manda/main.cpp"
+ }
+]

@@ -1,0 +1,128 @@
+#include "Move.hpp"
+#include "Board.hpp"
+
+std::vector<Move> Move::getLegalMoves(Board board, Piece player) {
+    std::vector<Move> moves;
+    bool visited[19][19] = {{false}};
+
+    for (int y = 0; y < 19; ++y) {
+        for (int x = 0; x < 19; ++x) {
+            if (board.getPiece(y, x) == EMPTY)
+                continue;
+
+            for (int dy = -2; dy <= 2; ++dy) {
+                for (int dx = -2; dx <= 2; ++dx) {
+                    int nx = x + dx;
+                    int ny = y + dy;
+
+                    if (nx < 0 || nx >= BOARD_SIZE || ny < 0 || ny >= BOARD_SIZE)
+                        continue;
+                    if (board.getPiece(ny, nx) != EMPTY || visited[ny][nx])
+                        continue;
+
+                    visited[ny][nx] = true;
+                    Move m{ny, nx, WHITE};
+
+                    if (!isDoubleThree(board, m, player))
+                        moves.push_back(m);
+                }
+            }
+        }
+    }
+
+    if (moves.empty())
+        moves.push_back({9, 9, EMPTY});
+    return moves;
+}
+
+bool Move::countPattern(
+    Board& board,
+    int x,
+    int y,
+    int dx,
+    int dy,
+    Piece player,
+    const std::vector<int>& pattern
+) const {
+    int len = pattern.size();
+
+    for (int offset = 0; offset < len; ++offset) {
+        if (pattern[offset] != 1) continue;
+
+        bool match = true;
+
+        for (int i = 0; i < len; ++i) {
+            int nx = x + (i - offset) * dx;
+            int ny = y + (i - offset) * dy;
+
+            if (nx < 0 || nx >= 19 || ny < 0 || ny >= 19) {
+                match = false;
+                break;
+            }
+
+            Piece cell = board.getPiece(ny, nx);
+
+            if (pattern[i] == 1) {
+                if (cell != player) {
+                    match = false;
+                    break;
+                }
+            }
+            else if (pattern[i] == 0) {
+                if (cell != EMPTY) {
+                    match = false;
+                    break;
+                }
+            }
+        }
+
+        if (match)
+            return true;
+    }
+    return false;     
+};
+
+bool Move::isFreeThree(Board board, int x, int y, int dx, int dy, Piece player) const
+{
+    // On regarde une fenêtre de 5 à 6 cases autour du coup
+    // pour détecter les patterns de free-three
+
+    // Pattern 1 : .XXX.
+    if (countPattern(board, x, y, dx, dy, player, {0, 1, 1, 1, 0}))
+        return true;
+
+    // Pattern 2 : .XX.X.
+    if (countPattern(board, x, y, dx, dy, player, {0, 1, 1, 0, 1, 0}))
+        return true;
+
+    // Pattern 3 : .X.XX.
+    if (countPattern(board, x, y, dx, dy, player, {0, 1, 0, 1, 1, 0}))
+        return true;
+
+    return false;
+}
+
+bool Move::isDoubleThree(Board board, Move m, Piece player) const
+{
+    board.play(m);
+
+    board.printBoard();
+
+    int freeThreeCount = 0;
+    const int dirs[4][2] = {
+        {1, 0},
+        {0, 1},
+        {1, 1},
+        {1, -1}
+    };
+
+    for (auto& d : dirs)
+        if (isFreeThree(board, m.getX(), m.getY(), d[0], d[1], player))
+            freeThreeCount++;
+
+    board.undo();
+
+    std::cout << "freeThreeCount: " << freeThreeCount << std::endl;
+
+    return freeThreeCount >= 2;
+}

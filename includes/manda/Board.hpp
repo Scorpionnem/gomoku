@@ -6,6 +6,7 @@
 #include "Move.hpp"
 
 # define BOARD_SIZE 19
+# define WIN_CAPTURES 5
 
 struct CaptureInfo {
     int capturedCount = 0;
@@ -33,16 +34,65 @@ class Board {
             _board[move.getX()][move.getY()] = move.getPiece();
             _history.push_back(move);
         };
-        
+
+        bool hasFiveInARow(int x, int y, Piece player) const {
+            if (getPiece(x, y) != player)
+                return false;
+
+            const int dirs[4][2] = {
+                {1, 0},
+                {0, 1},
+                {1, 1},
+                {1, -1}
+            };
+
+            for (auto& d : dirs) {
+                int count = 1;
+
+                for (int step = 1; step < 5; ++step) {
+                    int nx = x + step * d[0];
+                    int ny = y + step * d[1];
+                    if (isOutOfBounds(nx, ny) || getPiece(nx, ny) != player)
+                        break;
+                    ++count;
+                }
+
+                for (int step = 1; step < 5; ++step) {
+                    int nx = x - step * d[0];
+                    int ny = y - step * d[1];
+                    if (isOutOfBounds(nx, ny) || getPiece(nx, ny) != player)
+                        break;
+                    ++count;
+                }
+
+                if (count >= 5)
+                    return true;
+            }
+            return false;
+        }
+
+        bool isWin(Piece player) {
+            if (getCaptureCount(player) >= WIN_CAPTURES * 2)
+                return true;
+
+            Move last = getLastMove();
+            if (last.getPiece() != player)
+                return false;
+
+            return hasFiveInARow(last.getX(), last.getY(), player);
+        }
+
         void undo() {
             if (_history.empty())
                 return;
             Move last_move = getLastMove();
+
             if (last_move.getType() == CAPTURE) {
                 for (auto& pos : last_move.getRemovedPositions())
                     _board[pos.first][pos.second] = last_move.getPiece() == BLACK ? WHITE : BLACK;
                 incrementCaptureCount(last_move.getPiece(), -last_move.getRemovedPositions().size());
             }
+
             _board[last_move.getX()][last_move.getY()] = EMPTY;
             _history.pop_back();
         }

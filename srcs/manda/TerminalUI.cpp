@@ -114,6 +114,13 @@ void playMove(Game& game, int x, int y) {
     }
     else g_status.clear();
 
+    if (game.getBoard().isWin(game.getCurrentPlayer())) {
+        const char* winner =
+            game.getCurrentPlayer() == BLACK ? "Red" : "Blue";
+        g_status = std::string(winner) + " wins!";
+        return;
+    }
+
     game.setCurrentPlayer(game.opponent());
 }
 

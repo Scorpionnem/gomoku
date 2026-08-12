@@ -44,6 +44,7 @@ class Board {
 
         Piece getPiece(int x, int y) const { return _board[x][y]; }
 
+        // TEMPORARY DEBUG FUNCTION
         void printBoard() {
             std::cout << "   ";
             for (int j = 0; j < BOARD_SIZE; j++)
@@ -58,6 +59,9 @@ class Board {
                             break;
                         case WHITE:
                             std::cout << "\033[34;1m●\033[0m" << " ";
+                            break;
+                        case ILLEGAL:
+                            std::cout << "\033[32;1m▴\033[0m" << " ";
                             break;
                         default:
                             std::cout << "\033[90m·\033[0m" << " ";

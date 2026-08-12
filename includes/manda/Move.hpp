@@ -9,6 +9,7 @@ enum Piece {
     EMPTY = 0,
     BLACK = 1,
     WHITE = 2,
+    ILLEGAL = 3,
 };
 
 class Move {
@@ -30,7 +31,7 @@ class Move {
         void setY(int y) { _y = y; }
         void setPiece(Piece piece) { _piece = piece; }
 
-        std::vector<Move> getLegalMoves(Board board, Piece player);
+        std::vector<Move> getIllegalMoves(Board board, Piece player);
         bool countPattern(
             Board& board,
             int x,
@@ -42,6 +43,11 @@ class Move {
         ) const;
         bool isDoubleThree(Board board, Move m, Piece player) const;
         bool isFreeThree(Board board, int x, int y, int dx, int dy, Piece player) const;
+        
+        // TEMPORARY DEBUG FUNCTION
+        static void printIllegalMoves(Board board, Piece player);
+        
+        static bool isIllegalMove(Board board, Move m);
     };
 
 #endif

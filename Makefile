@@ -44,7 +44,7 @@ CURR_OBJ	= 0
 all: ${NAME}
 
 ${NAME}: ${OBJS}
-	@${CC} ${FLAGS} -o ${NAME} ${OBJS}
+	@${CC} ${FLAGS} -o ${NAME} ${OBJS} -lreadline
 	@printf "$(_BOLD)$(NAME)$(_RESET) compiled $(_GREEN)$(_BOLD)successfully$(_RESET)\n\n"
 
 ${BUILD_DIR}%.o: ${DIR}%.cpp
@@ -62,7 +62,7 @@ ${BUILD_DIR}%.o: ${DIR_BONUS}%.cpp
 	@printf "$(_GREEN)($(_BOLD)%3s%%$(_RESET)$(_GREEN)) $(_RESET)Compiling $(_BOLD)$(_PURPLE)$<$(_RESET)\n" "$(PERCENT)"
 
 bonus: ${OBJS_BONUS}
-	@${CC} ${FLAGS_BONUS} -o ${NAME_BONUS} ${OBJS_BONUS}
+	@${CC} ${FLAGS_BONUS} -o ${NAME_BONUS} ${OBJS_BONUS} -lreadline
 	@printf "$(_BOLD)$(NAME_BONUS)$(_RESET) compiled $(_GREEN)$(_BOLD)successfully$(_RESET)\n\n"
 
 clean:

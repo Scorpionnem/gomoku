@@ -21,7 +21,7 @@ std::vector<Move> Move::getLegalMoves(Board board, Piece player) {
                         continue;
 
                     visited[ny][nx] = true;
-                    Move m{ny, nx, WHITE};
+                    Move m{ny, nx, player};
 
                     if (!isDoubleThree(board, m, player))
                         moves.push_back(m);
@@ -60,7 +60,7 @@ bool Move::countPattern(
                 break;
             }
 
-            Piece cell = board.getPiece(ny, nx);
+            Piece cell = board.getPiece(nx, ny);
 
             if (pattern[i] == 1) {
                 if (cell != player) {
@@ -84,18 +84,12 @@ bool Move::countPattern(
 
 bool Move::isFreeThree(Board board, int x, int y, int dx, int dy, Piece player) const
 {
-    // On regarde une fenêtre de 5 à 6 cases autour du coup
-    // pour détecter les patterns de free-three
-
-    // Pattern 1 : .XXX.
     if (countPattern(board, x, y, dx, dy, player, {0, 1, 1, 1, 0}))
         return true;
 
-    // Pattern 2 : .XX.X.
     if (countPattern(board, x, y, dx, dy, player, {0, 1, 1, 0, 1, 0}))
         return true;
 
-    // Pattern 3 : .X.XX.
     if (countPattern(board, x, y, dx, dy, player, {0, 1, 0, 1, 1, 0}))
         return true;
 

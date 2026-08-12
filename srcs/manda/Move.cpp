@@ -19,7 +19,7 @@ bool Move::isIllegalMove(Board board, Move m) {
     Move moveInstance;
     if (
         (board.getPiece(m.getX(), m.getY()) != EMPTY) ||
-        (m.getX() < 0 || m.getX() >= BOARD_SIZE || m.getY() < 0 || m.getY() >= BOARD_SIZE)
+        (board.isOutOfBounds(m.getX(), m.getY()))
     ) {
         std::cout << "Invalid move" << std::endl;
         return true;
@@ -50,7 +50,7 @@ std::vector<Move> Move::getIllegalMoves(Board board, Piece player) {
                     int nx = x + dx;
                     int ny = y + dy;
 
-                    if (nx < 0 || nx >= BOARD_SIZE || ny < 0 || ny >= BOARD_SIZE)
+                    if (board.isOutOfBounds(nx, ny))
                         continue;
                     if (board.getPiece(ny, nx) != EMPTY || visited[ny][nx])
                         continue;

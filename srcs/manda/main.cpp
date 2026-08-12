@@ -6,11 +6,17 @@ int main() {
     Game game;
 
     char *input;
-    int round = 1;
-    (void)round;
     while ((input = readline("> ")) != nullptr) {
 
         std::string text = input;
+
+        if (text == "undo") {
+            game.getBoard().undo();
+            game.setCurrentPlayer(game.opponent());
+            game.getBoard().printBoard();
+            continue;
+        }
+
         int x = std::stoi(text.substr(0, text.find(',')));
         int y = std::stoi(text.substr(text.find(',') + 1));
         Move playerMove = {x, y, game.getCurrentPlayer()};
@@ -23,15 +29,31 @@ int main() {
 
         // Play the move
         game.getBoard().play(playerMove);
-        round++;
+
+        // Apply captures
+        CaptureInfo captureInfo = game.getBoard().findCaptures(
+            playerMove,
+            game.opponent()
+        );
+
+        if (captureInfo.capturedCount > 0) {
+            std::cout << "Captures: " << captureInfo.capturedCount << std::endl;
+            playerMove.setType(CAPTURE);
+            playerMove.setRemovedPositions(captureInfo.removedPositions);
+
+            game.getBoard().setLastMove(playerMove);
+            game.getBoard().incrementCaptureCount(game.getCurrentPlayer(), captureInfo.capturedCount);
+
+            game.getBoard().applyCaptures(captureInfo);
+        }
 
         // Switch player
-        if (round % 2 == 0) game.setCurrentPlayer(WHITE);
-        else game.setCurrentPlayer(BLACK);
+        game.setCurrentPlayer(game.opponent());
 
-        // DEBUG: Print the board and the illegal moves
-        game.getBoard().printBoard();
+        // DEBUG: Print the illegal moves
         Move::printIllegalMoves(game.getBoard(), game.getCurrentPlayer());
+        std::cout << "White captures: " << game.getBoard().getCaptureCount(WHITE) << std::endl;
+        std::cout << "Black captures: " << game.getBoard().getCaptureCount(BLACK) << std::endl;
         
         free(input);
     }

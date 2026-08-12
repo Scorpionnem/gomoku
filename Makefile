@@ -45,21 +45,38 @@ CURR_OBJ	= 0
 all: ${NAME}
 
 ${NAME}: ${OBJS}
-	@${CC} ${FLAGS} -o ${NAME} ${OBJS}
+	@${CC} ${FLAGS} -o ${NAME} ${OBJS} -lreadline
 	@printf "$(_BOLD)$(NAME)$(_RESET) compiled $(_GREEN)$(_BOLD)successfully$(_RESET)\n\n"
 
 ${BUILD_DIR}%.o: ${DIR}%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -c $< -o $@
+	@${CC} ${FLAGS} -o $@ -c $<
+	@$(eval CURR_OBJ=$(shell echo $$(( $(CURR_OBJ) + 1 ))))
+	@$(eval PERCENT=$(shell echo $$(( $(CURR_OBJ) * 100 / $(OBJS_TOTAL) ))))
+	@printf "$(_GREEN)($(_BOLD)%3s%%$(_RESET)$(_GREEN)) $(_RESET)Compiling $(_BOLD)$(_PURPLE)$<$(_RESET)\n" "$(PERCENT)"
+
+${BUILD_DIR}%.o: ${DIR_BONUS}%.cpp
+	@mkdir -p $(dir $@)
+	@${CC} ${FLAGS_BONUS} -o $@ -c $<
+	@$(eval CURR_OBJ=$(shell echo $$(( $(CURR_OBJ) + 1 ))))
+	@$(eval PERCENT=$(shell echo $$(( $(CURR_OBJ) * 100 / $(OBJS_TOTAL) ))))
+	@printf "$(_GREEN)($(_BOLD)%3s%%$(_RESET)$(_GREEN)) $(_RESET)Compiling $(_BOLD)$(_PURPLE)$<$(_RESET)\n" "$(PERCENT)"
+
+bonus: ${OBJS_BONUS}
+	@${CC} ${FLAGS_BONUS} -o ${NAME_BONUS} ${OBJS_BONUS} -lreadline
+	@printf "$(_BOLD)$(NAME_BONUS)$(_RESET) compiled $(_GREEN)$(_BOLD)successfully$(_RESET)\n\n"
 
 clean:
-	rm -rf $(OBJ_DIR)
+	@rm -rf ${OBJS} ${DEPS} ${BUILD_DIR}
+	@printf "\n$(_BOLD)All objects are $(_GREEN)cleaned $(_RESET)! 🎉\n\n"
 
 fclean: clean
-	rm -rf $(NAME)
+	@rm -f ${NAME} ${NAME_BONUS} ${DEPS} ${DEPS_BONUS}
+	@printf "Cleaned $(_BOLD)$(NAME)$(_RESET) !\n\n"
 
 re: fclean all
 
-.PHONY: all clean fclean re
-
 -include $(DEPS)
+-include $(DEPS_BONUS)
+
+.PHONY: clean fclean re all

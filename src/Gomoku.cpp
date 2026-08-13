@@ -23,7 +23,7 @@ void	Gomoku::loop()
 
 		if (state == State::GAME)
 		{
-			game(input);
+			updateGame(input);
 		}
 		else if (state == State::MENU)
 			;
@@ -33,7 +33,7 @@ void	Gomoku::loop()
 	}
 }
 
-u32		Gomoku::getAction(Input &input, Gomoku::Player p)
+u32		Gomoku::getAction(Input &input, int p)
 {
 	if (p == HUMANPLAYER)
 	{
@@ -41,7 +41,8 @@ u32		Gomoku::getAction(Input &input, Gomoku::Player p)
 		{
 			int	x = input.mouseX() / TILE_SIZE;
 			int	y = input.mouseY() / TILE_SIZE;
-
+			
+			playMove(x, y);
 			return (x + y);
 		}
 		return (0);
@@ -53,24 +54,66 @@ u32		Gomoku::getAction(Input &input, Gomoku::Player p)
 	return (0);
 }
 
-void	Gomoku::game(Input &input)
+void	Gomoku::playMove(int x, int y)
+{
+    Move playerMove = {x, y, game.getCurrentPlayer()};
+
+    if (Move::isIllegalMove(game.getBoard(), playerMove))
+	{
+		std::cout << "Invalid / illegal move" << std::endl;
+        return ;
+    }
+
+    game.getBoard().play(playerMove);
+
+    CaptureInfo captureInfo = game.getBoard().findCaptures(
+        playerMove,
+        game.opponent()
+    );
+
+    if (captureInfo.capturedCount > 0)
+	{
+        playerMove.setType(CAPTURE);
+        playerMove.setRemovedPositions(captureInfo.removedPositions);
+        game.getBoard().setLastMove(playerMove);
+        game.getBoard().incrementCaptureCount(
+            game.getCurrentPlayer(),
+            captureInfo.capturedCount
+        );
+        game.getBoard().applyCaptures(captureInfo);
+    }
+
+    if (game.getBoard().isWin(game.getCurrentPlayer()))
+	{
+		std::cout << (game.getCurrentPlayer() == BLACK ? "Red" : "Blue") << std::endl;
+        return ;
+    }
+
+    game.setCurrentPlayer(game.opponent());
+}
+
+void	Gomoku::updateGame(Input &input)
 {
 	renderBoardBackground();
 
-	u32	p = getAction(input, pTurn == P1TURN ? p1 : p2);
-	if (p != 0)
+	u32	p = getAction(input, 1);
+	(void)p;
+
+	if (input.wasPressed(SDLK_SPACE))
 	{
-		pTurn = pTurn == P1TURN ? P2TURN : P1TURN;
-		plays.insert(p);
+		game.getBoard().undo();
+		game.setCurrentPlayer(game.opponent());
 	}
 
-	// for (auto _p : plays)
-	// {
-	// 	if (t == P1TURN)
-	// 		drawPiece(x, y, 0, 0, 0);
-	// 	else
-	// 		drawPiece(x, y, 255, 255, 255);
-	// }
+	auto	b = game.getBoard().getBoard();
+	for (int x = 0; x < BOARD_SIZE; x++)
+		for (int y = 0; y < BOARD_SIZE; y++)
+		{
+			if (b[x][y] == Piece::BLACK)
+				drawPiece(x, y, 0, 0, 0);
+			else if (b[x][y] == Piece::WHITE)
+				drawPiece(x, y, 255, 255, 255);
+		}
 
 	renderOutline(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE, 0, 0, 0);
 	if (input.wasPressed(SDL_BUTTON_LEFT))

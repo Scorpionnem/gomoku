@@ -1,6 +1,7 @@
 #pragma once
 
 #include "platform/Window.hpp"
+#include "Game.hpp"
 
 #include <set>
 
@@ -21,11 +22,6 @@ class	Gomoku
 		MENU,
 		GAME,
 	};
-	enum PlayerTurn
-	{
-		P1TURN,
-		P2TURN,
-	};
 	public:
 		void	run()
 		{
@@ -36,22 +32,19 @@ class	Gomoku
 		void	init();
 		void	loop();
 
-		void	game(Input &input);
-		u32		getAction(Input &input, Gomoku::Player p);
+		void	updateGame(Input &input);
+		u32		getAction(Input &input, int p);
+		void	playMove(int x, int y);
 
 		void	drawTile(int x, int y, int r, int g, int b);
 		void	drawPiece(int x, int y, int r, int g, int b);
 		void	renderOutline(int x, int y, int r, int g, int b);
 		void	renderBoardBackground();
 	private:
+		Game	game;
+
 		Window	win;
 		bool	running = false;
 
 		State	state = State::GAME;
-
-		Player	p1 = Player::HUMANPLAYER;
-		Player	p2 = Player::HUMANPLAYER;
-		PlayerTurn	pTurn = P1TURN;
-
-		std::set<u32>	plays; // test
 };

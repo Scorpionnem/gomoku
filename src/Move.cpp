@@ -8,7 +8,9 @@ void Move::printIllegalMoves(Board board, Piece player, int cursorX, int cursorY
         move.setPiece(ILLEGAL);
         board.play(move);
     }
-    board.printBoard(cursorX, cursorY);
+	(void)cursorX;
+	(void)cursorY;
+    // board.printBoard(cursorX, cursorY);
     for (const Move& move: illegalMoves) {
         (void)move;
         board.undo();

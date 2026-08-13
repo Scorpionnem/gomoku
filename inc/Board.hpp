@@ -29,6 +29,7 @@ class Board {
         
         ~Board() {};
 
+		auto	getBoard() {return (_board);}
 
         void play(Move move) {
             _board[move.getX()][move.getY()] = move.getPiece();
@@ -150,45 +151,6 @@ class Board {
         void applyCaptures(CaptureInfo captureInfo) {
             for (auto& pos : captureInfo.removedPositions)
                 _board[pos.first][pos.second] = EMPTY;
-        }
-
-        // TEMPORARY DEBUG FUNCTIONS
-        static void clearScreen() {
-            std::cout << "\033[2J\033[H" << std::flush;
-        }
-
-        void printBoard(int cursorX = -1, int cursorY = -1) {
-            std::cout << "    ";
-            for (int j = 0; j < BOARD_SIZE; j++)
-                std::cout << (j % 10) << "    ";
-            std::cout << "\n";
-            for (int i = 0; i < BOARD_SIZE; i++) {
-                std::cout << (i < 10 ? " " : "") << i << "";
-                for (int j = 0; j < BOARD_SIZE; j++) {
-                    const bool selected = (i == cursorX && j == cursorY);
-                    const char* open = selected ? " \033[33;1m[\033[0m" : "  ";
-                    const char* close = selected ? "\033[33;1m]\033[0m " : "  ";
-
-                    std::cout << open;
-                    switch (_board[i][j]) {
-                        case BLACK:
-                            std::cout << "\033[31;1m●\033[0m";
-                            break;
-                        case WHITE:
-                            std::cout << "\033[34;1m●\033[0m";
-                            break;
-                        case ILLEGAL:
-                            std::cout << "\033[32;1m▴\033[0m";
-                            break;
-                        default:
-                            std::cout << "\033[90m·\033[0m";
-                            break;
-                    }
-                    std::cout << close;
-                }
-                std::cout << "\n\n";
-            }
-            std::cout << std::flush;
         }
 };
 

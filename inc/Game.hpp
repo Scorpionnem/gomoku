@@ -1,5 +1,4 @@
-#ifndef MANDA_GAME_HPP
-#define MANDA_GAME_HPP
+#pragma once
 
 #include "Board.hpp"
 #include "Move.hpp"
@@ -23,5 +22,3 @@ class Game {
         Piece getCurrentPlayer() const { return _currentPlayer; }
         Board& getBoard() { return _board; }
 };
-
-#endif

@@ -17,6 +17,7 @@ LFLAGS :=		$(SDL_LIBS) -lGL
 SRCS :=	src/main.cpp			\
 		src/platform/Input.cpp	\
 		src/platform/Window.cpp	\
+		src/Gomoku.cpp			\
 
 OBJS :=	$(SRCS:%.cpp=$(OBJ_DIR)%.o)
 DEPS :=	$(SRCS:%.cpp=$(OBJ_DIR)%.d)

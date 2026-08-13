@@ -1,4 +1,4 @@
-NAME :=	gomoku
+NAME :=	Gomoku
 
 CXX :=		c++
 CXXFLAGS :=	-g -MP -MMD -Wall -Wextra -Werror -std=c++17 -O3
@@ -14,9 +14,9 @@ SDL_LIBS :=		$(shell sdl2-config --libs)
 INCLUDE_DIRS :=	-I$(INC_DIR) $(SDL_CFLAGS) -I$(LIB_DIR)
 LFLAGS :=		$(SDL_LIBS) -lGL
 
-SRCS :=	$(addprefix $(SRC_DIR),			\
-			main.cpp					\
-		)
+SRCS :=	src/main.cpp			\
+		src/platform/Input.cpp	\
+		src/platform/Window.cpp	\
 
 OBJS :=	$(SRCS:%.cpp=$(OBJ_DIR)%.o)
 DEPS :=	$(SRCS:%.cpp=$(OBJ_DIR)%.d)

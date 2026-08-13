@@ -1,5 +1,8 @@
 #include "Gomoku.hpp"
 
+#include <vector>
+#include <map>
+
 void	Gomoku::init()
 {
 	win.open(WINDOW_TITLE, WINDOW_SIZE);
@@ -18,21 +21,60 @@ void	Gomoku::loop()
 			running = false;
 		}
 
-		renderBoardBackground();
-
-		drawPiece(9, 9, 0, 0, 0);
-		drawPiece(8, 8, 255, 255, 255);
-
-		renderOutline(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE, 0, 0, 0);
-		if (input.wasPressed(SDL_BUTTON_LEFT))
+		if (state == State::GAME)
 		{
-			renderOutline(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE, 0, 255, 0);
-			std::cout << "X: " << input.mouseX() / TILE_SIZE << " Y: " << input.mouseY() / TILE_SIZE << std::endl;
+			game(input);
 		}
+		else if (state == State::MENU)
+			;
 
 		win.swapBuffers();
 		SDL_Delay(16);
 	}
+}
+
+u32		Gomoku::getAction(Input &input, Gomoku::Player p)
+{
+	if (p == HUMANPLAYER)
+	{
+		if (input.wasPressed(SDL_BUTTON_LEFT))
+		{
+			int	x = input.mouseX() / TILE_SIZE;
+			int	y = input.mouseY() / TILE_SIZE;
+
+			return (x + y);
+		}
+		return (0);
+	}
+	else if (p == AIPLAYER)
+	{
+
+	}
+	return (0);
+}
+
+void	Gomoku::game(Input &input)
+{
+	renderBoardBackground();
+
+	u32	p = getAction(input, pTurn == P1TURN ? p1 : p2);
+	if (p != 0)
+	{
+		pTurn = pTurn == P1TURN ? P2TURN : P1TURN;
+		plays.insert(p);
+	}
+
+	// for (auto _p : plays)
+	// {
+	// 	if (t == P1TURN)
+	// 		drawPiece(x, y, 0, 0, 0);
+	// 	else
+	// 		drawPiece(x, y, 255, 255, 255);
+	// }
+
+	renderOutline(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE, 0, 0, 0);
+	if (input.wasPressed(SDL_BUTTON_LEFT))
+		renderOutline(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE, 0, 255, 0);
 }
 
 void	Gomoku::drawTile(int x, int y, int r, int g, int b)

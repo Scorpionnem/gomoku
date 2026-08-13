@@ -6,7 +6,7 @@ class	Gomoku
 {
 	#define TILES 19
 	#define TILE_SIZE 32
-	#define PIECE_SIZE 24
+	#define PIECE_SIZE 22
 	#define WINDOW_SIZE (TILES * TILE_SIZE)
 	#define WINDOW_TITLE "Gomoku"
 	public:
@@ -22,42 +22,47 @@ class	Gomoku
 		}
 		void	loop()
 		{
+			Input	input;
+
 			running = true;
 
 			while (running)
 			{
-				Input	input;
 				if (!win.pollEvents(input) || input.isDown(SDLK_ESCAPE))
-					running = false;
-
-				if (input.isDown(SDL_BUTTON_LEFT))
 				{
-					std::cout << "X: " << input.mouseX() / TILE_SIZE << " Y: " << input.mouseY() / TILE_SIZE << std::endl;
+					running = false;
 				}
 
 				renderBoardBackground();
-				renderCursor(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE);
 
-				drawPiece(0, 0, 0, 0, 0);
+				drawPiece(9, 9, 0, 0, 0);
+				drawPiece(8, 8, 255, 255, 255);
+
+				renderOutline(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE, 0, 0, 0);
+				if (input.wasPressed(SDL_BUTTON_LEFT))
+				{
+					renderOutline(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE, 0, 255, 0);
+					std::cout << "X: " << input.mouseX() / TILE_SIZE << " Y: " << input.mouseY() / TILE_SIZE << std::endl;
+				}
 
 				win.swapBuffers();
-
 				SDL_Delay(16);
 			}
 		}
+
 		void	drawTile(int x, int y, int r, int g, int b)
 		{
 			win.drawFillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, r, g, b);
 		}
 		void	drawPiece(int x, int y, int r, int g, int b)
 		{
-			win.drawFillRect(x * TILE_SIZE + 4,
-							 y * TILE_SIZE + 4,
+			win.drawFillRect(x * TILE_SIZE + ((TILE_SIZE - PIECE_SIZE) / 2),
+							 y * TILE_SIZE + ((TILE_SIZE - PIECE_SIZE) / 2),
 							 PIECE_SIZE, PIECE_SIZE, r, g, b);
 		}
-		void	renderCursor(int x, int y)
+		void	renderOutline(int x, int y, int r, int g, int b)
 		{
-			win.drawRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 0, 0);
+			win.drawRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, r, g, b);
 		}
 		void	renderBoardBackground()
 		{
@@ -69,6 +74,7 @@ class	Gomoku
 					else
 						drawTile(x, y, 204, 141, 53);
 				}
+			drawTile(9, 9, 140, 90, 20);
 		}
 	private:
 		Window	win;

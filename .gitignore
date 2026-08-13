@@ -6,3 +6,6 @@ external/
 
 Gomoku
 en.subject.pdf
+
+.clang
+compile_commands.json

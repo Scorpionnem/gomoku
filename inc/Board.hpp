@@ -72,15 +72,72 @@ class Board {
             return false;
         }
 
+        bool hasAnyFiveInARow(Piece player) const {
+            for (int x = 0; x < BOARD_SIZE; ++x)
+                for (int y = 0; y < BOARD_SIZE; ++y)
+                    if (hasFiveInARow(x, y, player))
+                        return true;
+            return false;
+        }
+
+        bool canOpponentBreakFive(Piece player) const {
+            const Piece opp = (player == BLACK) ? WHITE : BLACK;
+            const int dirs[8][2] = {
+                {1, 0}, {-1, 0}, {0, 1}, {0, -1},
+                {1, 1}, {-1, -1}, {1, -1}, {-1, 1}
+            };
+
+            for (int x = 0; x < BOARD_SIZE; ++x) {
+                for (int y = 0; y < BOARD_SIZE; ++y) {
+                    if (getPiece(x, y) != EMPTY)
+                        continue;
+
+                    bool canCapture = false;
+                    for (auto& d : dirs) {
+                        int x1 = x + d[0],     y1 = y + d[1];
+                        int x2 = x + 2 * d[0], y2 = y + 2 * d[1];
+                        int x3 = x + 3 * d[0], y3 = y + 3 * d[1];
+                        if (isOutOfBounds(x1, y1) || isOutOfBounds(x2, y2) || isOutOfBounds(x3, y3))
+                            continue;
+                        if (getPiece(x1, y1) == player &&
+                            getPiece(x2, y2) == player &&
+                            getPiece(x3, y3) == opp) {
+                            canCapture = true;
+                            break;
+                        }
+                    }
+                    if (!canCapture)
+                        continue;
+
+                    Move m{x, y, opp};
+                    if (Move::isIllegalMove(*this, m))
+                        continue;
+
+                    Board tmp = *this;
+                    tmp.play(m);
+                    tmp.applyCaptures(tmp.findCaptures(m, player));
+                    if (!tmp.hasAnyFiveInARow(player))
+                        return true;
+                }
+            }
+            return false;
+        }
+
         bool isWin(Piece player) {
-            if (getCaptureCount(player) >= WIN_CAPTURES * 2)
+            if (getCaptureCount(player) >= WIN_CAPTURES)
                 return true;
 
             Move last = getLastMove();
-            if (last.getPiece() != player)
+            if (last.getPiece() == EMPTY)
                 return false;
 
-            return hasFiveInARow(last.getX(), last.getY(), player);
+            if (last.getPiece() == player) {
+                if (!hasFiveInARow(last.getX(), last.getY(), player))
+                    return false;
+                return !canOpponentBreakFive(player);
+            }
+
+            return hasAnyFiveInARow(player);
         }
 
         void undo() {
@@ -142,7 +199,7 @@ class Board {
                     getPiece(x3, y3) == me) {
                     captureInfo.removedPositions.push_back({x1, y1});
                     captureInfo.removedPositions.push_back({x2, y2});
-                    captureInfo.capturedCount += 2;
+                    captureInfo.capturedCount += 1;
                 }
             }
             return captureInfo;

@@ -21,7 +21,7 @@ LFLAGS :=		$(SDL_LIBS) -lGL
 
 INCLUDE_DIRS :=	-I$(INC_DIR) $(SDL_CFLAGS) -I$(LIB_DIR)
 
-FLAGS 		:= -Wall -Werror -Wextra -g $(INCLUDE_DIRS) -std=c++17 -MMD -MP
+FLAGS 		:= -Wall -Werror -Wextra -g $(INCLUDE_DIRS) -std=c++20 -MMD -MP
 
 
 DEPS		:=	$(OBJS:.o=.d)

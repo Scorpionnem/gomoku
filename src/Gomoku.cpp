@@ -1,7 +1,6 @@
 #include "Gomoku.hpp"
 
 #include <vector>
-#include <map>
 
 void	Gomoku::init()
 {
@@ -33,7 +32,7 @@ void	Gomoku::loop()
 	}
 }
 
-u32		Gomoku::getAction(Input &input, int p)
+void		Gomoku::getAction(Input &input, int p)
 {
 	if (p == HUMANPLAYER)
 	{
@@ -43,15 +42,9 @@ u32		Gomoku::getAction(Input &input, int p)
 			int	y = input.mouseY() / TILE_SIZE;
 			
 			playMove(x, y);
-			return (x + y);
 		}
-		return (0);
 	}
-	else if (p == AIPLAYER)
-	{
-
-	}
-	return (0);
+	else if (p == AIPLAYER) {}
 }
 
 void	Gomoku::playMove(int x, int y)
@@ -85,7 +78,13 @@ void	Gomoku::playMove(int x, int y)
 
     if (game.getBoard().isWin(game.getCurrentPlayer()))
 	{
-		std::cout << (game.getCurrentPlayer() == BLACK ? "Red" : "Blue") << std::endl;
+		std::cout << (game.getCurrentPlayer() == BLACK ? "Red" : "Blue") << " wins" << std::endl;
+        return ;
+    }
+
+    if (game.getBoard().isWin(game.opponent()))
+	{
+		std::cout << (game.opponent() == BLACK ? "Red" : "Blue") << " wins" << std::endl;
         return ;
     }
 
@@ -96,16 +95,25 @@ void	Gomoku::updateGame(Input &input)
 {
 	renderBoardBackground();
 
-	u32	p = getAction(input, 1);
-	(void)p;
+	getAction(input, 1);
 
+	// TEMPORARY INPUT FOR DEBUGGING
 	if (input.wasPressed(SDLK_SPACE))
 	{
 		game.getBoard().undo();
 		game.setCurrentPlayer(game.opponent());
 	}
 
-	auto	b = game.getBoard().getBoard();
+	Piece (*b)[BOARD_SIZE] = game.getBoard().getBoard();
+	
+	Move moveInstance;
+	auto illegalMoves = moveInstance.getIllegalMoves(
+		game.getBoard(),
+		game.getCurrentPlayer()
+	);
+	for (Move& move : illegalMoves)
+		drawPiece(move.getX(), move.getY(), 255, 0, 0);
+
 	for (int x = 0; x < BOARD_SIZE; x++)
 		for (int y = 0; y < BOARD_SIZE; y++)
 		{

@@ -1,22 +1,6 @@
 #include "Move.hpp"
 #include "Board.hpp"
 
-void Move::printIllegalMoves(Board board, Piece player, int cursorX, int cursorY) {
-    Move moveInstance;
-    std::vector<Move> illegalMoves = moveInstance.getIllegalMoves(board, player);
-    for (Move& move : illegalMoves) {
-        move.setPiece(ILLEGAL);
-        board.play(move);
-    }
-	(void)cursorX;
-	(void)cursorY;
-    // board.printBoard(cursorX, cursorY);
-    for (const Move& move: illegalMoves) {
-        (void)move;
-        board.undo();
-    }
-}
-
 bool Move::isIllegalMove(Board board, Move m) {
     Move moveInstance;
     if (

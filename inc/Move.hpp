@@ -56,9 +56,6 @@ class Move {
         bool isDoubleThree(Board board, Move m, Piece player) const;
         bool isFreeThree(Board board, int x, int y, int dx, int dy, Piece player) const;
         
-        // TEMPORARY DEBUG FUNCTION
-        static void printIllegalMoves(Board board, Piece player, int cursorX = -1, int cursorY = -1);
-        
         static bool isIllegalMove(Board board, Move m);
     };
 

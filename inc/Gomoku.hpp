@@ -33,7 +33,7 @@ class	Gomoku
 		void	loop();
 
 		void	updateGame(Input &input);
-		u32		getAction(Input &input, int p);
+		void	getAction(Input &input, int p);
 		void	playMove(int x, int y);
 
 		void	drawTile(int x, int y, int r, int g, int b);

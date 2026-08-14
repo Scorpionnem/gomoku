@@ -21,10 +21,8 @@ std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) const {
             for (int dx = -2; dx <= 2; ++dx) {
                 for (int dy = -2; dy <= 2; ++dy) {
                     Position next = {x + dx, y + dy};
-                    if (board.isOutOfBounds(next) || board.getPiece(next) != EMPTY)
-                        continue;
-                    if (visited[next.x][next.y])
-                        continue;
+                    if (board.isOutOfBounds(next) || board.getPiece(next) != EMPTY) continue;
+                    if (visited[next.x][next.y]) continue;
 
                     visited[next.x][next.y] = true;
                     moves.push_back({next, player});
@@ -37,10 +35,8 @@ std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) const {
 
 std::vector<Move> Move::getIllegalMoves(const Board& board, Piece player) const {
     std::vector<Move> illegal;
-    for (Move& m : getNearbyMoves(board, player)) {
-        if (isDoubleThree(board, m, player))
-            illegal.push_back(m);
-    }
+    for (Move& m : getNearbyMoves(board, player))
+        if (isDoubleThree(board, m, player)) illegal.push_back(m);
     return illegal;
 }
 

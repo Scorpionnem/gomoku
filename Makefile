@@ -2,6 +2,7 @@ NAME		:=	Gomoku
 
 SRCS		:= 	main.cpp		\
 				Move.cpp		\
+				Board.cpp		\
 				platform/Input.cpp		\
 				platform/Window.cpp		\
 				Gomoku.cpp		\

@@ -93,7 +93,7 @@ void	Gomoku::playMove(Position position)
 
 void	Gomoku::updateGame(Input &input)
 {
-	renderBoardBackground();
+	win.drawBoard();
 
 	getAction(input, 1);
 
@@ -117,9 +117,9 @@ void	Gomoku::updateGame(Input &input)
 		{
 			Position position = {x, y};
 			if (game.getBoard().getPiece(position) == Piece::BLACK)
-				drawPiece(position, BLACK_COLOR);
+				win.drawPiece(position.x * TILE_SIZE, position.y * TILE_SIZE, 0);
 			else if (game.getBoard().getPiece(position) == Piece::WHITE)
-				drawPiece(position, WHITE_COLOR);
+				win.drawPiece(position.x * TILE_SIZE, position.y * TILE_SIZE, 1);
 		}
 
 	renderOutline({input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE}, BLACK_COLOR);

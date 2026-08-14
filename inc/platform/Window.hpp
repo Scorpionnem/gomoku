@@ -38,6 +38,9 @@ class Window
 		u32     width() const;
 		u32     height() const;
 
+		void	drawPiece(int x, int y, bool white);
+		void	drawBoard();
+
 		void	drawFillRect(int x, int y, int width, int height, unsigned char r, unsigned char g, unsigned char b, unsigned char o = 255)
 		{
 			SDL_SetRenderDrawColor(_renderer, r, g, b, o);
@@ -64,12 +67,18 @@ class Window
 
 			SDL_RenderDrawRect(_renderer, &rect);
 		}
+
+		SDL_Renderer	*getRenderer() {return (_renderer);}
 	private:
 		void    _initSDL();
 		void    _createWindow(const char *title, u32 width, u32 height);
 
 		SDL_Window		*_window = nullptr;
 		SDL_Renderer	*_renderer = nullptr;
+
+		SDL_Texture		*board_tex = nullptr;
+		SDL_Texture		*black_tex = nullptr;
+		SDL_Texture		*white_tex = nullptr;
 
 		u32				_width = 0;
 		u32				_height = 0;

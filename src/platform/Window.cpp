@@ -1,4 +1,5 @@
 #include "platform/Window.hpp"
+#include "Gomoku.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
@@ -32,10 +33,58 @@ void    Window::open(const char *title, u32 width, u32 height)
 	_createWindow(title, width, height);
 	_width = width;
 	_height = height;
+
+
+	
+	SDL_Surface	*surface = SDL_LoadBMP("gomoku_board.bmp");
+	if (!surface)
+		throw std::runtime_error("loadbmp");
+
+	board_tex = SDL_CreateTextureFromSurface(_renderer, surface);
+	if (!board_tex)
+		throw std::runtime_error("createtexture");
+	SDL_FreeSurface(surface);
+
+
+
+	surface = SDL_LoadBMP("black_piece.bmp");
+	if (!surface)
+		throw std::runtime_error("loadbmp");
+
+	black_tex = SDL_CreateTextureFromSurface(_renderer, surface);
+	if (!black_tex)
+		throw std::runtime_error("createtexture");
+	SDL_FreeSurface(surface);
+
+
+
+	surface = SDL_LoadBMP("white_piece.bmp");
+	if (!surface)
+		throw std::runtime_error("loadbmp");
+
+	white_tex = SDL_CreateTextureFromSurface(_renderer, surface);
+	if (!white_tex)
+		throw std::runtime_error("createtexture");
+	SDL_FreeSurface(surface);
 }
 
 void    Window::close()
 {
+	if (board_tex)
+	{
+		SDL_DestroyTexture(board_tex);
+		board_tex = nullptr;
+	}
+	if (white_tex)
+	{
+		SDL_DestroyTexture(white_tex);
+		white_tex = nullptr;
+	}
+	if (black_tex)
+	{
+		SDL_DestroyTexture(black_tex);
+		black_tex = nullptr;
+	}
 	if (_renderer)
 	{
 		SDL_DestroyRenderer(_renderer);
@@ -140,4 +189,28 @@ void    Window::_createWindow(const char *title, u32 width, u32 height)
 		close();
 		throw std::runtime_error(std::string("SDL_CreateRenderer: ") + SDL_GetError());
 	}
+}
+
+void	Window::drawPiece(int x, int y, bool white)
+{
+	SDL_Rect	rect = {
+		.x = x,
+		.y = y,
+		.w = TILE_SIZE,
+		.h = TILE_SIZE,
+	};
+
+	SDL_RenderCopy(_renderer, white ? white_tex : black_tex, NULL, &rect);
+}
+
+void	Window::drawBoard()
+{
+	SDL_Rect	rect = {
+		.x = 0,
+		.y = 0,
+		.w = WINDOW_SIZE,
+		.h = WINDOW_SIZE,
+	};
+
+	SDL_RenderCopy(_renderer, board_tex, NULL, &rect);
 }

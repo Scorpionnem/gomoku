@@ -4,15 +4,15 @@
 bool Move::isIllegalMove(Board board, Move m) {
     Move moveInstance;
     if (
-        (board.getPiece(m.getX(), m.getY()) != EMPTY) ||
-        (board.isOutOfBounds(m.getX(), m.getY()))
+        (board.getPiece(m.getPosition()) != EMPTY) ||
+        (board.isOutOfBounds(m.getPosition()))
     )
         return true;
 
     std::vector<Move> illegalMoves = moveInstance.getIllegalMoves(board, m.getPiece());
     
     for (Move& move : illegalMoves) {
-        if (move.getX() == m.getX() && move.getY() == m.getY())
+        if (move.getPosition() == m.getPosition())
             return true;
     }
     return false;
@@ -24,21 +24,20 @@ std::vector<Move> Move::getIllegalMoves(Board board, Piece player) {
 
     for (int y = 0; y < 19; ++y) {
         for (int x = 0; x < 19; ++x) {
-            if (board.getPiece(y, x) == EMPTY)
+            if (board.getPiece({x, y}) == EMPTY)
                 continue;
 
             for (int dy = -2; dy <= 2; ++dy) {
                 for (int dx = -2; dx <= 2; ++dx) {
-                    int nx = x + dx;
-                    int ny = y + dy;
+                    Position next = {x + dx, y + dy};
 
-                    if (board.isOutOfBounds(nx, ny))
+                    if (board.isOutOfBounds(next))
                         continue;
-                    if (board.getPiece(ny, nx) != EMPTY || visited[ny][nx])
+                    if (board.getPiece(next) != EMPTY || visited[next.y][next.x])
                         continue;
 
-                    visited[ny][nx] = true;
-                    Move m{ny, nx, player};
+                    visited[next.y][next.x] = true;
+                    Move m{next, player};
 
                     if (isDoubleThree(board, m, player))
                         moves.push_back(m);
@@ -51,10 +50,8 @@ std::vector<Move> Move::getIllegalMoves(Board board, Piece player) {
 
 bool Move::countPattern(
     Board& board,
-    int x,
-    int y,
-    int dx,
-    int dy,
+    Position position,
+    Position direction,
     Piece player,
     const std::vector<int>& pattern
 ) const{
@@ -66,15 +63,17 @@ bool Move::countPattern(
         bool match = true;
 
         for (int i = 0; i < len; ++i) {
-            int nx = x + (i - offset) * dx;
-            int ny = y + (i - offset) * dy;
+            Position next = {
+                position.x + (i - offset) * direction.x,
+                position.y + (i - offset) * direction.y
+            };
 
-            if (nx < 0 || nx >= 19 || ny < 0 || ny >= 19) {
+            if (board.isOutOfBounds(next)) {
                 match = false;
                 break;
             }
 
-            Piece cell = board.getPiece(nx, ny);
+            Piece cell = board.getPiece(next);
 
             if (pattern[i] == 1) {
                 if (cell != player) {
@@ -96,15 +95,13 @@ bool Move::countPattern(
     return false;     
 };
 
-bool Move::isFreeThree(Board board, int x, int y, int dx, int dy, Piece player) const
+bool Move::isFreeThree(Board board, Position position, Position direction, Piece player) const
 {
-    if (countPattern(board, x, y, dx, dy, player, {0, 1, 1, 1, 0}))
+    if (countPattern(board, position, direction, player, {0, 1, 1, 1, 0}))
         return true;
-
-    if (countPattern(board, x, y, dx, dy, player, {0, 1, 1, 0, 1, 0}))
+    if (countPattern(board, position, direction, player, {0, 1, 1, 0, 1, 0}))
         return true;
-
-    if (countPattern(board, x, y, dx, dy, player, {0, 1, 0, 1, 1, 0}))
+    if (countPattern(board, position, direction, player, {0, 1, 0, 1, 1, 0}))
         return true;
 
     return false;
@@ -114,15 +111,9 @@ bool Move::isDoubleThree(Board board, Move m, Piece player) const
 {
     board.play(m);
     int freeThreeCount = 0;
-    const int dirs[4][2] = {
-        {1, 0},
-        {0, 1},
-        {1, 1},
-        {1, -1}
-    };
 
-    for (auto& d : dirs)
-        if (isFreeThree(board, m.getX(), m.getY(), d[0], d[1], player))
+    for (auto& d : AXES)
+        if (isFreeThree(board, m.getPosition(), {d[0], d[1]}, player))
             freeThreeCount++;
 
     board.undo();

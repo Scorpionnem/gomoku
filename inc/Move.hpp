@@ -2,8 +2,18 @@
 #define MANDA_MOVE_HPP
 
 #include <vector>
+#include <string>
 
 class Board;
+
+struct Position {
+    int x = 0;
+    int y = 0;
+
+    bool operator==(const Position& other) const {
+        return x == other.x && y == other.y;
+    }
+};
 
 enum MoveType {
     PLACEMENT = 0,
@@ -14,47 +24,43 @@ enum Piece {
     BLACK = 0,
     WHITE = 1,
     EMPTY = 2,
-    ILLEGAL = 3,
+    ILLEGAL = 3
 };
 
 class Move {
 
     private:
-        int     _x;
-        int     _y;
+        Position _position;
         Piece   _piece;
         MoveType _type;
-        std::vector<std::pair<int,int>> _removedPositions;
+        std::vector<Position> _removedPositions;
 
-    public:
-        Move(): _x(0), _y(0), _piece(EMPTY), _type(PLACEMENT), _removedPositions({}) {};
-        Move(int x, int y, Piece piece): _x(x), _y(y), _piece(piece), _type(PLACEMENT), _removedPositions({}) {};
-        Move(int x, int y, Piece piece, MoveType type): _x(x), _y(y), _piece(piece), _type(type), _removedPositions({}) {};
-
-        int getX() const { return _x; }
-        int getY() const { return _y; }
-        MoveType getType() const { return _type; }
-        std::vector<std::pair<int,int>> getRemovedPositions() const { return _removedPositions; }
-        Piece getPiece() const { return _piece; }
-
-        void setX(int x) { _x = x; }
-        void setY(int y) { _y = y; }
-        void setPiece(Piece piece) { _piece = piece; }
-        void setType(MoveType type) { _type = type; }
-        void setRemovedPositions(std::vector<std::pair<int,int>> removedPositions) { _removedPositions = removedPositions; }
-
-        std::vector<Move> getIllegalMoves(Board board, Piece player);
         bool countPattern(
             Board& board,
-            int x,
-            int y,
-            int dx,
-            int dy,
+            Position position,
+            Position direction,
             Piece player,
             const std::vector<int>& pattern
         ) const;
         bool isDoubleThree(Board board, Move m, Piece player) const;
-        bool isFreeThree(Board board, int x, int y, int dx, int dy, Piece player) const;
+        bool isFreeThree(Board board, Position position, Position direction, Piece player) const;
+
+    public:
+        Move(): _position({0, 0}), _piece(EMPTY), _type(PLACEMENT), _removedPositions({}) {};
+        Move(Position position, Piece piece): _position(position), _piece(piece), _type(PLACEMENT), _removedPositions({}) {};
+        Move(Position position, Piece piece, MoveType type): _position(position), _piece(piece), _type(type), _removedPositions({}) {};
+
+        Position getPosition() const { return _position; }
+        MoveType getType() const { return _type; }
+        std::vector<Position> getRemovedPositions() const { return _removedPositions; }
+        Piece getPiece() const { return _piece; }
+
+        void setPosition(Position position) { _position = position; }
+        void setPiece(Piece piece) { _piece = piece; }
+        void setType(MoveType type) { _type = type; }
+        void setRemovedPositions(std::vector<Position> removedPositions) { _removedPositions = removedPositions; }
+
+        std::vector<Move> getIllegalMoves(Board board, Piece player);
         
         static bool isIllegalMove(Board board, Move m);
     };

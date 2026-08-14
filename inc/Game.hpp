@@ -19,6 +19,15 @@ class Game {
             return _currentPlayer == BLACK ? WHITE : BLACK;
         }
 
+        static std::string toString(Piece piece) {
+            switch (piece) {
+                case BLACK: return "BLACK";
+                case WHITE: return "WHITE";
+                case EMPTY: return "EMPTY";
+                case ILLEGAL: return "ILLEGAL";
+            }
+        }
+
         Piece getCurrentPlayer() const { return _currentPlayer; }
         Board& getBoard() { return _board; }
 };

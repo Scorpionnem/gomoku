@@ -41,15 +41,15 @@ void		Gomoku::getAction(Input &input, int p)
 			int	x = input.mouseX() / TILE_SIZE;
 			int	y = input.mouseY() / TILE_SIZE;
 			
-			playMove(x, y);
+			playMove({x, y});
 		}
 	}
 	else if (p == AIPLAYER) {}
 }
 
-void	Gomoku::playMove(int x, int y)
+void	Gomoku::playMove(Position position)
 {
-    Move playerMove = {x, y, game.getCurrentPlayer()};
+    Move playerMove = {position, game.getCurrentPlayer()};
 
     if (Move::isIllegalMove(game.getBoard(), playerMove))
 	{
@@ -78,13 +78,13 @@ void	Gomoku::playMove(int x, int y)
 
     if (game.getBoard().isWin(game.getCurrentPlayer()))
 	{
-		std::cout << (game.getCurrentPlayer() == BLACK ? "Red" : "Blue") << " wins" << std::endl;
+		std::cout << Game::toString(game.getCurrentPlayer()) << " wins" << std::endl;
         return ;
     }
 
     if (game.getBoard().isWin(game.opponent()))
 	{
-		std::cout << (game.opponent() == BLACK ? "Red" : "Blue") << " wins" << std::endl;
+		std::cout << Game::toString(game.opponent()) << " wins" << std::endl;
         return ;
     }
 
@@ -104,45 +104,44 @@ void	Gomoku::updateGame(Input &input)
 		game.setCurrentPlayer(game.opponent());
 	}
 
-	Piece (*b)[BOARD_SIZE] = game.getBoard().getBoard();
-	
 	Move moveInstance;
 	auto illegalMoves = moveInstance.getIllegalMoves(
 		game.getBoard(),
 		game.getCurrentPlayer()
 	);
 	for (Move& move : illegalMoves)
-		drawPiece(move.getX(), move.getY(), 255, 0, 0);
+		drawPiece(move.getPosition(), RED_COLOR);
 
 	for (int x = 0; x < BOARD_SIZE; x++)
 		for (int y = 0; y < BOARD_SIZE; y++)
 		{
-			if (b[x][y] == Piece::BLACK)
-				drawPiece(x, y, 0, 0, 0);
-			else if (b[x][y] == Piece::WHITE)
-				drawPiece(x, y, 255, 255, 255);
+			Position position = {x, y};
+			if (game.getBoard().getPiece(position) == Piece::BLACK)
+				drawPiece(position, BLACK_COLOR);
+			else if (game.getBoard().getPiece(position) == Piece::WHITE)
+				drawPiece(position, WHITE_COLOR);
 		}
 
-	renderOutline(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE, 0, 0, 0);
+	renderOutline({input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE}, BLACK_COLOR);
 	if (input.wasPressed(SDL_BUTTON_LEFT))
-		renderOutline(input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE, 0, 255, 0);
+		renderOutline({input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE}, GREEN_COLOR);
 }
 
-void	Gomoku::drawTile(int x, int y, int r, int g, int b)
+void	Gomoku::drawTile(Position position, Color color)
 {
-	win.drawFillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, r, g, b);
+	win.drawFillRect(position.x * TILE_SIZE, position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, color.r, color.g, color.b);
 }
 
-void	Gomoku::drawPiece(int x, int y, int r, int g, int b)
+void	Gomoku::drawPiece(Position position, Color color)
 {
-	win.drawFillRect(x * TILE_SIZE + ((TILE_SIZE - PIECE_SIZE) / 2),
-						y * TILE_SIZE + ((TILE_SIZE - PIECE_SIZE) / 2),
-						PIECE_SIZE, PIECE_SIZE, r, g, b);
+	win.drawFillRect(position.x * TILE_SIZE + ((TILE_SIZE - PIECE_SIZE) / 2),
+						position.y * TILE_SIZE + ((TILE_SIZE - PIECE_SIZE) / 2),
+						PIECE_SIZE, PIECE_SIZE, color.r, color.g, color.b);
 }
 
-void	Gomoku::renderOutline(int x, int y, int r, int g, int b)
+void	Gomoku::renderOutline(Position position, Color color)
 {
-	win.drawRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, r, g, b);
+	win.drawRect(position.x * TILE_SIZE, position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, color.r, color.g, color.b);
 }
 
 void	Gomoku::renderBoardBackground()
@@ -151,9 +150,9 @@ void	Gomoku::renderBoardBackground()
 		for (int y = 0; y < TILES; y++)
 		{
 			if ((x + y) % 2)
-				drawTile(x, y, 230, 167, 80);
+				drawTile({x, y}, BROWN_COLOR);
 			else
-				drawTile(x, y, 204, 141, 53);
+				drawTile({x, y}, BEIGE_COLOR);
 		}
-	drawTile(9, 9, 140, 90, 20);
+	drawTile({9, 9}, DARK_BROWN_COLOR);
 }

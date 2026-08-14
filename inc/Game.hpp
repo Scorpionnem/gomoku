@@ -2,6 +2,7 @@
 
 #include "Board.hpp"
 #include "Move.hpp"
+#include <string>
 
 class Game {
 

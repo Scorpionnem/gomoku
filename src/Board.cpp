@@ -115,7 +115,21 @@ bool Board::isWin(Piece player) {
 void Board::play(Move move) {
     setPiece(move.getPosition(), move.getPiece());
     _history.push_back(move);
-};
+}
+
+void Board::applyMove(Move move, Piece opponent) {
+    play(move);
+
+    CaptureInfo info = findCaptures(move, opponent);
+    if (info.capturedCount == 0)
+        return;
+
+    move.setType(CAPTURE);
+    move.setRemovedPositions(info.removedPositions);
+    setLastMove(move);
+    incrementCaptureCount(move.getPiece(), info.capturedCount);
+    applyCaptures(info);
+}
 
 void Board::undo() {
     if (_history.empty())

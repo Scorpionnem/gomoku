@@ -3,6 +3,8 @@ NAME		:=	Gomoku
 SRCS		:= 	main.cpp		\
 				Move.cpp		\
 				Board.cpp		\
+				Heuristic.cpp	\
+				AI.cpp			\
 				platform/Input.cpp		\
 				platform/Window.cpp		\
 				Gomoku.cpp		\
@@ -63,11 +65,15 @@ clean:
 	@printf "\n$(_BOLD)All objects are $(_GREEN)cleaned $(_RESET)! 🎉\n\n"
 
 fclean: clean
-	@rm -f ${NAME} ${DEPS}
+	@rm -f ${NAME} ${DEPS} debug_ai
 	@printf "Cleaned $(_BOLD)$(NAME)$(_RESET) !\n\n"
 
 re: fclean all
 
 -include $(DEPS)
 
-.PHONY: clean fclean re all
+.PHONY: clean fclean re all debug_ai
+
+debug_ai: src/debug_ai.cpp src/AI.cpp src/Heuristic.cpp src/Move.cpp src/Board.cpp
+	@${CC} ${FLAGS} -o debug_ai src/debug_ai.cpp src/AI.cpp src/Heuristic.cpp src/Move.cpp src/Board.cpp
+	@printf "$(_BOLD)debug_ai$(_RESET) compiled $(_GREEN)$(_BOLD)successfully$(_RESET)\n\n"

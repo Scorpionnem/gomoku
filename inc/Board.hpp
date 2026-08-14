@@ -1,9 +1,9 @@
 #ifndef MANDA_BOARD_HPP
-#define MANDA_BOARD_HPP
+# define MANDA_BOARD_HPP
 
-#include <algorithm>
-#include <vector>
-#include "Move.hpp"
+# include <algorithm>
+# include <vector>
+# include "Move.hpp"
 
 # define BOARD_SIZE 19
 # define WIN_CAPTURES 5
@@ -43,6 +43,7 @@ class Board {
 
         bool        isWin(Piece player);
         void        play(Move move);
+        void        applyMove(Move move, Piece opponent);
         void        undo();
 
         void        setPiece(Position position, Piece piece) { _board[position.x][position.y] = piece; }

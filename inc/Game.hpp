@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Board.hpp"
-#include "Move.hpp"
-#include <string>
+# include "Board.hpp"
+# include "Move.hpp"
+# include <string>
 
 class Game {
 

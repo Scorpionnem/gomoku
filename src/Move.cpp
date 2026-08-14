@@ -1,51 +1,56 @@
 #include "Move.hpp"
 #include "Board.hpp"
 
-bool Move::isIllegalMove(Board board, Move m) {
-    Move moveInstance;
-    if (
-        (board.getPiece(m.getPosition()) != EMPTY) ||
-        (board.isOutOfBounds(m.getPosition()))
-    )
+bool Move::isIllegalMove(const Board& board, Move m) {
+    if (board.isOutOfBounds(m.getPosition()) || board.getPiece(m.getPosition()) != EMPTY)
         return true;
 
-    std::vector<Move> illegalMoves = moveInstance.getIllegalMoves(board, m.getPiece());
-    
-    for (Move& move : illegalMoves) {
-        if (move.getPosition() == m.getPosition())
-            return true;
-    }
-    return false;
+    Move moveInstance;
+    return moveInstance.isDoubleThree(board, m, m.getPiece());
 }
 
-std::vector<Move> Move::getIllegalMoves(Board board, Piece player) {
+std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) const {
     std::vector<Move> moves;
-    bool visited[19][19] = {{false}};
+    bool visited[BOARD_SIZE][BOARD_SIZE] = {};
 
-    for (int y = 0; y < 19; ++y) {
-        for (int x = 0; x < 19; ++x) {
+    for (int x = 0; x < BOARD_SIZE; ++x) {
+        for (int y = 0; y < BOARD_SIZE; ++y) {
             if (board.getPiece({x, y}) == EMPTY)
                 continue;
 
-            for (int dy = -2; dy <= 2; ++dy) {
-                for (int dx = -2; dx <= 2; ++dx) {
+            for (int dx = -2; dx <= 2; ++dx) {
+                for (int dy = -2; dy <= 2; ++dy) {
                     Position next = {x + dx, y + dy};
-
-                    if (board.isOutOfBounds(next))
+                    if (board.isOutOfBounds(next) || board.getPiece(next) != EMPTY)
                         continue;
-                    if (board.getPiece(next) != EMPTY || visited[next.y][next.x])
+                    if (visited[next.x][next.y])
                         continue;
 
-                    visited[next.y][next.x] = true;
-                    Move m{next, player};
-
-                    if (isDoubleThree(board, m, player))
-                        moves.push_back(m);
+                    visited[next.x][next.y] = true;
+                    moves.push_back({next, player});
                 }
             }
         }
     }
     return moves;
+}
+
+std::vector<Move> Move::getIllegalMoves(const Board& board, Piece player) const {
+    std::vector<Move> illegal;
+    for (Move& m : getNearbyMoves(board, player)) {
+        if (isDoubleThree(board, m, player))
+            illegal.push_back(m);
+    }
+    return illegal;
+}
+
+std::vector<Move> Move::getLegalMoves(const Board& board, Piece player) const {
+    std::vector<Move> nearby = getNearbyMoves(board, player);
+    if (nearby.empty()) return {{{BOARD_SIZE / 2, BOARD_SIZE / 2}, player}};
+
+    std::vector<Move> legal;
+    for (Move& m : nearby) if (!isDoubleThree(board, m, player)) legal.push_back(m);
+    return legal;
 }
 
 bool Move::countPattern(

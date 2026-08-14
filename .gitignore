@@ -4,5 +4,8 @@ obj/
 
 external/
 
-gomoku
+Gomoku
 en.subject.pdf
+
+.clang
+compile_commands.json

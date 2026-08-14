@@ -1,43 +1,72 @@
-NAME :=	gomoku
+NAME		:=	Gomoku
 
-CXX :=		c++
-CXXFLAGS :=	-g -MP -MMD -Wall -Wextra -Werror -std=c++17 -O3
+SRCS		:= 	main.cpp		\
+				Move.cpp		\
+				platform/Input.cpp		\
+				platform/Window.cpp		\
+				Gomoku.cpp		\
 
-LIB_DIR :=	lib/
-INC_DIR :=	inc/
-SRC_DIR :=	src/
-OBJ_DIR :=	.obj/
+DIR				:=	src/
+INC_DIR			:=	inc/
+
+BUILD_DIR := .build/
+
+OBJS		:=	$(SRCS:%.cpp=$(BUILD_DIR)%.o)
+
+CC			:= c++
 
 SDL_CFLAGS :=	$(shell sdl2-config --cflags)
 SDL_LIBS :=		$(shell sdl2-config --libs)
-
-INCLUDE_DIRS :=	-I$(INC_DIR) $(SDL_CFLAGS) -I$(LIB_DIR)
 LFLAGS :=		$(SDL_LIBS) -lGL
 
-SRCS :=	$(addprefix $(SRC_DIR),			\
-			main.cpp					\
-		)
+INCLUDE_DIRS :=	-I$(INC_DIR) $(SDL_CFLAGS) -I$(LIB_DIR)
 
-OBJS :=	$(SRCS:%.cpp=$(OBJ_DIR)%.o)
-DEPS :=	$(SRCS:%.cpp=$(OBJ_DIR)%.d)
+FLAGS 		:= -Wall -Werror -Wextra -g $(INCLUDE_DIRS) -std=c++20 -MMD -MP
 
-all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LFLAGS)
+DEPS		:=	$(OBJS:.o=.d)
 
-$(OBJ_DIR)%.o: %.cpp
+.DEFAULT_GOAL := all
+
+TPUT 					= tput -T xterm-256color
+_RESET 					:= $(shell $(TPUT) sgr0)
+_BOLD 					:= $(shell $(TPUT) bold)
+_ITALIC 				:= $(shell $(TPUT) sitm)
+_UNDER 					:= $(shell $(TPUT) smul)
+_GREEN 					:= $(shell $(TPUT) setaf 2)
+_YELLOW 				:= $(shell $(TPUT) setaf 3)
+_RED 					:= $(shell $(TPUT) setaf 1)
+_GRAY 					:= $(shell $(TPUT) setaf 8)
+_PURPLE 				:= $(shell $(TPUT) setaf 5)
+
+OBJS_TOTAL	= $(words $(OBJS))
+N_OBJS		:= $(shell find $(DIR) -type f -name $(OBJS) 2>/dev/null | wc -l)
+OBJS_TOTAL	:= $(shell echo $$(( $(OBJS_TOTAL) - $(N_OBJS) )))
+CURR_OBJ	= 0
+
+all: ${NAME}
+
+${NAME}: ${OBJS}
+	@${CC} ${FLAGS} -o ${NAME} ${OBJS} ${LFLAGS}
+	@printf "$(_BOLD)$(NAME)$(_RESET) compiled $(_GREEN)$(_BOLD)successfully$(_RESET)\n\n"
+
+${BUILD_DIR}%.o: ${DIR}%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -c $< -o $@
+	@${CC} ${FLAGS} -o $@ -c $<
+	@$(eval CURR_OBJ=$(shell echo $$(( $(CURR_OBJ) + 1 ))))
+	@$(eval PERCENT=$(shell echo $$(( $(CURR_OBJ) * 100 / $(OBJS_TOTAL) ))))
+	@printf "$(_GREEN)($(_BOLD)%3s%%$(_RESET)$(_GREEN)) $(_RESET)Compiling $(_BOLD)$(_PURPLE)$<$(_RESET)\n" "$(PERCENT)"
 
 clean:
-	rm -rf $(OBJ_DIR)
+	@rm -rf ${OBJS} ${DEPS} ${BUILD_DIR}
+	@printf "\n$(_BOLD)All objects are $(_GREEN)cleaned $(_RESET)! 🎉\n\n"
 
 fclean: clean
-	rm -rf $(NAME)
+	@rm -f ${NAME} ${DEPS}
+	@printf "Cleaned $(_BOLD)$(NAME)$(_RESET) !\n\n"
 
 re: fclean all
 
-.PHONY: all clean fclean re
-
 -include $(DEPS)
+
+.PHONY: clean fclean re all

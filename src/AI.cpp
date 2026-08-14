@@ -10,8 +10,8 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
     if (board.isWin(ai == BLACK ? WHITE : BLACK)) return -WIN_SCORE - depth;
     if (depth == 0) return Heuristic::evaluate(board, ai);
 
-    Move helper;
-    std::vector<Move> moves = helper.getLegalMoves(board, toMove);
+    Move moveInstance;
+    std::vector<Move> moves = moveInstance.getLegalMoves(board, toMove);
     if (moves.empty()) return Heuristic::evaluate(board, ai);
 
     if (maximizing) {
@@ -42,8 +42,8 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
 }
 
 Move AI::bestMove(Board board, Piece ai, int depth) {
-    Move helper;
-    std::vector<Move> moves = helper.getLegalMoves(board, ai);
+    Move moveInstance;
+    std::vector<Move> moves = moveInstance.getLegalMoves(board, ai);
     if (moves.empty())
         return {{BOARD_SIZE / 2, BOARD_SIZE / 2}, ai};
 

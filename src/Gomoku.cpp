@@ -1,10 +1,11 @@
 #include "Gomoku.hpp"
+#include "AI.hpp"
 
-#include <vector>
+bool humanPlayer = true;
 
 void	Gomoku::init()
 {
-	win.open(WINDOW_TITLE, WINDOW_SIZE);
+	win.open(WINDOW_TITLE, WINDOW_SIZE_X, WINDOW_SIZE_Y);
 }
 
 void	Gomoku::loop()
@@ -24,57 +25,47 @@ void	Gomoku::loop()
 		{
 			updateGame(input);
 		}
-		else if (state == State::MENU)
-			;
+		else if (state == State::MENU) {}
 
 		win.swapBuffers();
 		SDL_Delay(16);
 	}
 }
 
-void		Gomoku::getAction(Input &input, int p)
+void		Gomoku::getAction(Input &input)
 {
-	if (p == HUMANPLAYER)
+	if (humanPlayer)
 	{
 		if (input.wasPressed(SDL_BUTTON_LEFT))
 		{
 			int	x = input.mouseX() / TILE_SIZE;
 			int	y = input.mouseY() / TILE_SIZE;
 			
-			playMove({x, y});
+			if (x >= BOARD_SIZE || y >= BOARD_SIZE || x < 0 || y < 0)
+				return ;
+
+			Position position = {x, y};
+			Move playerMove = {position, game.getCurrentPlayer()};
+
+			if (Move::isIllegalMove(game.getBoard(), playerMove))
+			{
+				std::cout << "Invalid / illegal move" << std::endl;
+				return ;
+			}
+			playMove(playerMove);
+			humanPlayer = false;
 		}
 	}
-	else if (p == AIPLAYER) {}
+	else if (!humanPlayer) {
+		Move aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 3);
+		playMove(aiMove);	
+		humanPlayer = true;
+	}
 }
 
-void	Gomoku::playMove(Position position)
+void	Gomoku::playMove(Move move)
 {
-    Move playerMove = {position, game.getCurrentPlayer()};
-
-    if (Move::isIllegalMove(game.getBoard(), playerMove))
-	{
-		std::cout << "Invalid / illegal move" << std::endl;
-        return ;
-    }
-
-    game.getBoard().play(playerMove);
-
-    CaptureInfo captureInfo = game.getBoard().findCaptures(
-        playerMove,
-        game.opponent()
-    );
-
-    if (captureInfo.capturedCount > 0)
-	{
-        playerMove.setType(CAPTURE);
-        playerMove.setRemovedPositions(captureInfo.removedPositions);
-        game.getBoard().setLastMove(playerMove);
-        game.getBoard().incrementCaptureCount(
-            game.getCurrentPlayer(),
-            captureInfo.capturedCount
-        );
-        game.getBoard().applyCaptures(captureInfo);
-    }
+    game.getBoard().applyMove(move, game.getOpponent());
 
     if (game.getBoard().isWin(game.getCurrentPlayer()))
 	{
@@ -82,26 +73,26 @@ void	Gomoku::playMove(Position position)
         return ;
     }
 
-    if (game.getBoard().isWin(game.opponent()))
+    if (game.getBoard().isWin(game.getOpponent()))
 	{
-		std::cout << Game::toString(game.opponent()) << " wins" << std::endl;
+		std::cout << Game::toString(game.getOpponent()) << " wins" << std::endl;
         return ;
     }
 
-    game.setCurrentPlayer(game.opponent());
+    game.setCurrentPlayer(game.getOpponent());
 }
 
 void	Gomoku::updateGame(Input &input)
 {
 	win.drawBoard();
 
-	getAction(input, 1);
+	getAction(input);
 
 	// TEMPORARY INPUT FOR DEBUGGING
 	if (input.wasPressed(SDLK_SPACE))
 	{
 		game.getBoard().undo();
-		game.setCurrentPlayer(game.opponent());
+		game.setCurrentPlayer(game.getOpponent());
 	}
 
 	Move moveInstance;

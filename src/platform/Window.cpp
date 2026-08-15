@@ -7,8 +7,6 @@
 
 #include <stdexcept>
 #include <string>
-#include <iostream>
-#include <vector>
 
 Window::Window()
 {
@@ -66,6 +64,16 @@ void    Window::open(const char *title, u32 width, u32 height)
 	if (!white_tex)
 		throw std::runtime_error("createtexture");
 	SDL_FreeSurface(surface);
+
+	
+	surface = SDL_LoadBMP("hotbar.bmp");
+	if (!surface)
+		throw std::runtime_error("loadbmp");
+
+	hotbar_tex = SDL_CreateTextureFromSurface(_renderer, surface);
+	if (!hotbar_tex)
+		throw std::runtime_error("createtexture");
+	SDL_FreeSurface(surface);
 }
 
 void    Window::close()
@@ -74,6 +82,11 @@ void    Window::close()
 	{
 		SDL_DestroyTexture(board_tex);
 		board_tex = nullptr;
+	}
+	if (hotbar_tex)
+	{
+		SDL_DestroyTexture(hotbar_tex);
+		hotbar_tex = nullptr;
 	}
 	if (white_tex)
 	{
@@ -208,9 +221,18 @@ void	Window::drawBoard()
 	SDL_Rect	rect = {
 		.x = 0,
 		.y = 0,
-		.w = WINDOW_SIZE,
-		.h = WINDOW_SIZE,
+		.w = WIN_BOARD_SIZE,
+		.h = WIN_BOARD_SIZE,
 	};
 
 	SDL_RenderCopy(_renderer, board_tex, NULL, &rect);
+	
+	rect = {
+		.x = 0,
+		.y = WIN_BOARD_SIZE,
+		.w = WIN_BOARD_SIZE,
+		.h = 3 * TILE_SIZE,
+	};
+
+	SDL_RenderCopy(_renderer, hotbar_tex, NULL, &rect);
 }

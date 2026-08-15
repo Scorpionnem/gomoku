@@ -3,6 +3,8 @@ NAME		:=	Gomoku
 SRCS		:= 	main.cpp		\
 				Move.cpp		\
 				Board.cpp		\
+				Heuristic.cpp	\
+				AI.cpp			\
 				platform/Input.cpp		\
 				platform/Window.cpp		\
 				Gomoku.cpp		\

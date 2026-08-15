@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Board.hpp"
-#include "Move.hpp"
-#include <string>
+# include "Board.hpp"
+# include "Move.hpp"
+# include <string>
 
 class Game {
 
@@ -16,9 +16,8 @@ class Game {
 
         void setCurrentPlayer(Piece player) { _currentPlayer = player; }
 
-        Piece opponent() const {
-            return _currentPlayer == BLACK ? WHITE : BLACK;
-        }
+        static Piece opponent(Piece p) { return p == BLACK ? WHITE : BLACK; }
+        Piece getOpponent() const { return opponent(_currentPlayer); }
 
         static std::string toString(Piece piece) {
             switch (piece) {
@@ -26,6 +25,7 @@ class Game {
                 case WHITE: return "WHITE";
                 case EMPTY: return "EMPTY";
                 case ILLEGAL: return "ILLEGAL";
+                default : return ("ERROR");
             }
         }
 

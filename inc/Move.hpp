@@ -37,6 +37,7 @@ class Move {
         bool                    countPattern(Board& board, Position position, Position direction, Piece player, const std::vector<int>& pattern) const;
         bool                    isDoubleThree(Board board, Move m, Piece player) const;
         bool                    isFreeThree(Board board, Position position, Position direction, Piece player) const;
+        std::vector<Move>       getNearbyMoves(const Board& board, Piece player) const;
 
     public:
         Move() {};
@@ -53,8 +54,9 @@ class Move {
         void                    setType(MoveType type) { _type = type; }
         void                    setRemovedPositions(std::vector<Position> removedPositions) { _removedPositions = removedPositions; }
 
-        std::vector<Move>       getIllegalMoves(Board board, Piece player);
-        static bool             isIllegalMove(Board board, Move m);
+        std::vector<Move>       getIllegalMoves(const Board& board, Piece player) const;
+        std::vector<Move>       getLegalMoves(const Board& board, Piece player) const;
+        static bool             isIllegalMove(const Board& board, Move m);
     };
 
 #endif

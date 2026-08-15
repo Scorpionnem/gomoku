@@ -22,7 +22,7 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
     const Piece opp = Game::opponent(toMove);
     const bool maximizing = (toMove == ai);
 
-    if (depth >= max_depth || c.get() > 0.45)
+    if (depth >= max_depth || c.get() > 0.49)
         return Heuristic::evaluate(board, ai);
 
     Move moveInstance;
@@ -35,8 +35,23 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
     if (maximizing)
 	{
         int best = INT_MIN;
+        std::vector<std::pair<int, Move>> moves_scores;
+
         for (Move& move : moves)
-		{
+        {
+            board.applyMove(move, opp);
+            int score = Heuristic::evaluate(board, ai);
+            moves_scores.push_back({score, move});
+            board.undo();
+        }
+
+        std::sort(moves_scores.begin(), moves_scores.end(), [](const std::pair<int, Move>& a, const std::pair<int, Move>& b) {
+            return a.first > b.first;
+        });
+
+        for (auto& move_score : moves_scores)
+        {
+            Move& move = move_score.second;
             board.applyMove(move, opp);
             int score = alphabeta(board, ai, opp, depth + 1, alpha, beta);
             board.undo();
@@ -48,12 +63,27 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
             if (beta <= alpha)
 				break ;
         }
+
         return best;
     }
 
     int best = INT_MAX;
+    std::vector<std::pair<int, Move>> moves_scores;
+
     for (Move& move : moves)
+    {
+        board.applyMove(move, opp);
+        int score = Heuristic::evaluate(board, ai);
+        moves_scores.push_back({score, move});
+        board.undo();
+    }
+
+    std::sort(moves_scores.begin(), moves_scores.end(), [](const std::pair<int, Move>& a, const std::pair<int, Move>& b) {
+        return a.first > b.first;
+    });
+    for (auto& move_score : moves_scores)
 	{
+        Move& move = move_score.second;
         board.applyMove(move, opp);
         int score = alphabeta(board, ai, opp, depth + 1, alpha, beta);
         board.undo();

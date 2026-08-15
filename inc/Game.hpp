@@ -19,6 +19,9 @@ class Game {
         Piece opponent() const {
             return _currentPlayer == BLACK ? WHITE : BLACK;
         }
+        static Piece opponent(Piece p) {
+            return p == BLACK ? WHITE : BLACK;
+        }
 
         static std::string toString(Piece piece) {
             switch (piece) {
@@ -26,6 +29,7 @@ class Game {
                 case WHITE: return "WHITE";
                 case EMPTY: return "EMPTY";
                 case ILLEGAL: return "ILLEGAL";
+                default : return ("ERROR");
             }
         }
 

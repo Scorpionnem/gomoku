@@ -41,20 +41,20 @@ class Board {
 		Piece	    (*getBoard())[BOARD_SIZE] {return (_board);}
         Piece       getPiece(Position position) const { return _board[position.x][position.y]; }
 
-        bool        isWin(Piece player);
+        bool        isWin(Piece player) const;
         void        play(Move move);
         void        applyMove(Move move, Piece opponent);
         void        undo();
 
         void        setPiece(Position position, Piece piece) { _board[position.x][position.y] = piece; }
         void        setLastMove(Move move) { _history.back() = move; }
-        
+
         Move        getLastMove() const { if (_history.empty()) return {{BOARD_SIZE, BOARD_SIZE}, EMPTY}; return _history.back(); };
         int         getCaptureCount(Piece player) const { if (player == BLACK || player == WHITE) return _captureCount[player]; return -1; }
-        
+
         void        incrementCaptureCount(Piece player, int captured) { if (player == BLACK || player == WHITE) _captureCount[player] += captured; }
         bool        isOutOfBounds(Position position) const { return position.x < 0 || position.x >= BOARD_SIZE || position.y < 0 || position.y >= BOARD_SIZE; }
-        
+
         CaptureInfo findCaptures(const Move& m, Piece opponent) const;
         void        applyCaptures(CaptureInfo captureInfo) { for (auto& pos : captureInfo.removedPositions) _board[pos.x][pos.y] = EMPTY;}
 };

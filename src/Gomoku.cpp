@@ -66,15 +66,15 @@ void		Gomoku::getAction(Input &input)
 			humanPlayer = false;
 		}
 	}
-	else if (!humanPlayer)
+	if (humanPlayer)
 	{
 		if (AI_played == false)
 		{
-			aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
+			aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 20);
 			AI_played = true;
 		}
 
-		if (input.wasPressed(SDLK_TAB))
+		// if (input.wasPressed(SDLK_TAB))
 		{
 			AI_played = false;
 			playMove(aiMove);	
@@ -142,10 +142,10 @@ void	Gomoku::updateGame(Input &input)
 
 	win.drawText("time: " + std::to_string(AI::v.time) + "s", 9, WIN_BOARD_SIZE + 14);
 	win.drawText("depth: " + std::to_string(AI::v.max_depth_explored), 9, WIN_BOARD_SIZE + 14 + 24);
-	win.drawText("nodes: " + std::to_string(AI::v.explored_nodes), 9, WIN_BOARD_SIZE + 14 + 24 + 24);
+	win.drawText("nodes: " + std::to_string(AI::v.explored_nodes.load()), 9, WIN_BOARD_SIZE + 14 + 24 + 24);
 	win.drawText("turn: " + std::to_string(turn), 309, WIN_BOARD_SIZE + 14 + 24 + 24);
-	win.drawText("bco: " + std::to_string(AI::v.branches_cut_off), 309, WIN_BOARD_SIZE + 14);
-	win.drawText("bre " + std::to_string(AI::v.branches_reach_end), 309, WIN_BOARD_SIZE + 14 + 24);
+	win.drawText("bco: " + std::to_string(AI::v.branches_cut_off.load()), 309, WIN_BOARD_SIZE + 14);
+	win.drawText("bre " + std::to_string(AI::v.branches_reach_end.load()), 309, WIN_BOARD_SIZE + 14 + 24);
 
 	if (game.getBoard().isWin(WHITE)
 		|| game.getBoard().isWin(BLACK))

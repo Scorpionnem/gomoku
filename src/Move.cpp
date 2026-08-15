@@ -19,8 +19,8 @@ std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) const {
             if (board.isEmpty({x, y}))
                 continue;
 
-            for (int dx = -1; dx <= 1; ++dx) {
-                for (int dy = -1; dy <= 1; ++dy) {
+            for (int dx = -2; dx <= 2; ++dx) {
+                for (int dy = -2; dy <= 2; ++dy) {
                     Position next = {x + dx, y + dy};
                     if (board.isOutOfBounds(next) || board.getPiece(next) != EMPTY) continue;
                     if (visited[next.x][next.y]) continue;
@@ -46,7 +46,8 @@ std::vector<Move> Move::getLegalMoves(Board& board, Piece player) const {
     if (nearby.empty()) return {{{BOARD_SIZE / 2, BOARD_SIZE / 2}, player}};
 
     std::vector<Move> legal;
-    for (Move& m : nearby) if (!isDoubleThree(board, m, player)) legal.push_back(m);
+    for (Move& m : nearby)
+        if (!isDoubleThree(board, m, player)) legal.push_back(m);
     return legal;
 }
 
@@ -109,8 +110,37 @@ bool Move::isFreeThree(const Board& board, Position position, Position direction
     return false;
 }
 
+// Nombre de pierres `player` a distance <=3 du coup le long d'un axe (2 sens).
+static int axisAllyCount(const Board& board, Position p, Position d, Piece player)
+{
+    int count = 0;
+    for (int step = 1; step <= 3; ++step)
+    {
+        Position a = {p.x + step * d.x, p.y + step * d.y};
+        if (!board.isOutOfBounds(a) && board.getPiece(a) == player) ++count;
+        Position b = {p.x - step * d.x, p.y - step * d.y};
+        if (!board.isOutOfBounds(b) && board.getPiece(b) == player) ++count;
+    }
+    return count;
+}
+
+// Condition necessaire (jamais de faux negatif) : un double-three impose au
+// moins 2 axes ayant chacun >=2 allies proches. Filtre bon marche qui evite la
+// detection complete sur l'immense majorite des coups.
+static bool mightBeDoubleThree(const Board& board, Position p, Piece player)
+{
+    int axes = 0;
+    for (auto& d : AXES)
+        if (axisAllyCount(board, p, {d[0], d[1]}, player) >= 2 && ++axes >= 2)
+            return true;
+    return false;
+}
+
 bool Move::isDoubleThree(Board& board, const Move& m, Piece player) const
 {
+    if (!mightBeDoubleThree(board, m.getPosition(), player))
+        return false;
+
     board.play(m);
     int freeThreeCount = 0;
 

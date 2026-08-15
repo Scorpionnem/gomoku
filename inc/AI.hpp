@@ -17,10 +17,12 @@ class AI {
 			};
 			std::vector<MoveScore>	ai_moves;
 
-			int			explored_nodes;
+			// Incrementes par les threads de recherche -> atomiques.
+			std::atomic<int>	explored_nodes;
+			std::atomic<int>	branches_cut_off;
+			std::atomic<int>	branches_reach_end;
+			// Ecrits uniquement par le thread principal.
 			int			max_depth_explored;
-			int			branches_cut_off;
-			int			branches_reach_end;
 			int			max_depth;
 			double		time;
 			ThreadPool	threads;
@@ -30,6 +32,9 @@ class AI {
 
     private:
         static const int            WIN_SCORE = 1000000;
+        static constexpr double     TIME_LIMIT = 0.49;   // gate douce de l'iterative deepening
+        static constexpr double     HARD_LIMIT = 0.5;    // limite dure du cahier des charges (500ms)
+        static const int            MAX_CANDIDATES = 6;
 
         static int                  alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, int beta);
         static void                 orderMoves(Board& board, std::vector<Move>& moves, Piece ai, Piece toMove, bool useHeuristic);

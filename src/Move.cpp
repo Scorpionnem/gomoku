@@ -19,8 +19,8 @@ std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) const {
             if (board.isEmpty({x, y}))
                 continue;
 
-            for (int dx = -2; dx <= 2; ++dx) {
-                for (int dy = -2; dy <= 2; ++dy) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                for (int dy = -1; dy <= 1; ++dy) {
                     Position next = {x + dx, y + dy};
                     if (board.isOutOfBounds(next) || board.getPiece(next) != EMPTY) continue;
                     if (visited[next.x][next.y]) continue;

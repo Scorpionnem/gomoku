@@ -2,8 +2,6 @@
 #include "Gomoku.hpp"
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_vulkan.h>
-#include <vulkan/vulkan.h>
 
 #include <stdexcept>
 #include <string>
@@ -34,7 +32,7 @@ void    Window::open(const char *title, u32 width, u32 height)
 
 
 	
-	SDL_Surface	*surface = SDL_LoadBMP("gomoku_board.bmp");
+	SDL_Surface	*surface = SDL_LoadBMP("assets/gomoku_board.bmp");
 	if (!surface)
 		throw std::runtime_error("loadbmp");
 
@@ -45,7 +43,7 @@ void    Window::open(const char *title, u32 width, u32 height)
 
 
 
-	surface = SDL_LoadBMP("black_piece.bmp");
+	surface = SDL_LoadBMP("assets/black_piece.bmp");
 	if (!surface)
 		throw std::runtime_error("loadbmp");
 
@@ -56,7 +54,7 @@ void    Window::open(const char *title, u32 width, u32 height)
 
 
 
-	surface = SDL_LoadBMP("white_piece.bmp");
+	surface = SDL_LoadBMP("assets/white_piece.bmp");
 	if (!surface)
 		throw std::runtime_error("loadbmp");
 
@@ -66,7 +64,7 @@ void    Window::open(const char *title, u32 width, u32 height)
 	SDL_FreeSurface(surface);
 
 	
-	surface = SDL_LoadBMP("hotbar.bmp");
+	surface = SDL_LoadBMP("assets/hotbar.bmp");
 	if (!surface)
 		throw std::runtime_error("loadbmp");
 
@@ -108,6 +106,8 @@ void    Window::close()
 		SDL_DestroyWindow(_window);
 		_window = nullptr;
 	}
+	TTF_CloseFont(font);
+	TTF_Quit();
 	if (SDL_WasInit(SDL_INIT_VIDEO))
 		SDL_Quit();
 }
@@ -186,11 +186,16 @@ void    Window::_initSDL()
 		return ;
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		throw std::runtime_error(std::string("SDL_Init: ") + SDL_GetError());
+	if (TTF_Init() != 0)
+		throw std::runtime_error(std::string("TTF_Init: ") + TTF_GetError());
+	font = TTF_OpenFont("assets/Minecraft.ttf", 24);
+	if (!font)
+		throw std::runtime_error(std::string("TTF_OpenFont: ") + TTF_GetError());
 }
 
 void    Window::_createWindow(const char *title, u32 width, u32 height)
 {
-	_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_BORDERLESS);
+	_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
 	if (!_window)
 	{
 		close();

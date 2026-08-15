@@ -20,11 +20,11 @@ CC			:= c++
 
 SDL_CFLAGS :=	$(shell sdl2-config --cflags)
 SDL_LIBS :=		$(shell sdl2-config --libs)
-LFLAGS :=		$(SDL_LIBS) -lGL
+LFLAGS :=		$(SDL_LIBS) -lGL -lSDL2_ttf
 
 INCLUDE_DIRS :=	-I$(INC_DIR) $(SDL_CFLAGS) -I$(LIB_DIR)
 
-FLAGS 		:= -Wall -Werror -Wextra -g $(INCLUDE_DIRS) -std=c++20 -MMD -MP
+FLAGS 		:= -Wall -Werror -Wextra -g $(INCLUDE_DIRS) -std=c++20 -MMD -MP -O3
 
 
 DEPS		:=	$(OBJS:.o=.d)

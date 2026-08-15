@@ -7,6 +7,10 @@
 
 class AI {
     public:
+		static int	explored_nodes;
+		static int	max_depth;
+		static int	max_depth_explored;
+		static double	time;
         static Move                 bestMove(const Board& board, Piece ai, int depth);
 
     private:

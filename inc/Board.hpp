@@ -25,7 +25,7 @@ struct CaptureInfo {
 class Board {
 
     private:
-        Piece                   _board[BOARD_SIZE];
+        Piece                   _board[BOARD_SIZE * BOARD_SIZE];
         std::vector<Move>       _history = {};
         int                     _captureCount[2] = {0, 0};
 
@@ -36,11 +36,11 @@ class Board {
         bool                    matchCaptureRay(Position from, Position dir, Piece pair, Piece end, Position& p1, Position& p2) const;
 
     public:
-        Board() { std::fill(_board, _board + BOARD_SIZE, EMPTY); };
+        Board() { std::fill(&_board[0], &_board[0] + BOARD_SIZE * BOARD_SIZE, EMPTY); };
         ~Board() {};
 
 		Piece*      getBoard() {return (_board);}
-        Piece       getPiece(Position position) const { return _board[position.x * BOARD_SIZE + position.y]; }
+        Piece       getPiece(Position position) const { return _board[position.x + BOARD_SIZE * position.y]; }
         bool        isEmpty(Position position) const { return !isOutOfBounds(position) && getPiece(position) == EMPTY; }
         int         countRay(Position position, Position direction, Piece player, int maxSteps) const;
 
@@ -49,7 +49,7 @@ class Board {
         void        applyMove(const Move& move, Piece opponent);
         void        undo();
 
-        void        setPiece(Position position, Piece piece) { _board[position.x * BOARD_SIZE + position.y] = piece; }
+        void        setPiece(Position position, Piece piece) { _board[position.x + BOARD_SIZE * position.y] = piece; }
         void        setLastMove(const Move& move) { _history.back() = move; }
 
         Move        getLastMove() const { if (_history.empty()) return {{BOARD_SIZE, BOARD_SIZE}, EMPTY}; return _history.back(); };
@@ -60,7 +60,7 @@ class Board {
 
         CaptureInfo findCaptures(const Move& m, Piece opponent) const;
         int         countCaptureThreats(Piece player) const;
-        void        applyCaptures(const CaptureInfo& captureInfo) { for (auto& pos : captureInfo.removedPositions) _board[pos.x * BOARD_SIZE + pos.y] = EMPTY;}
+        void        applyCaptures(const CaptureInfo& captureInfo) { for (auto& pos : captureInfo.removedPositions) _board[pos.x + BOARD_SIZE * pos.y] = EMPTY;}
 
 
         void printBoard() {
@@ -71,7 +71,7 @@ class Board {
             for (int i = 0; i < BOARD_SIZE; i++) {
                 std::cout << (i < 10 ? " " : "") << i << " ";
                 for (int j = 0; j < BOARD_SIZE; j++) {
-                    switch (_board[j * BOARD_SIZE + i]) {
+                    switch (_board[j + BOARD_SIZE * i]) {
                         case BLACK:
                             std::cout << "\033[31;1m●\033[0m" << " ";
                             break;

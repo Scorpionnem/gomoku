@@ -1,4 +1,5 @@
 #include "Board.hpp"
+#include "Game.hpp"
 
 int Board::countRay(Position position, Position direction, Piece player, int maxSteps) const {
     int count = 0;
@@ -50,7 +51,7 @@ bool Board::isInStones(const std::vector<Position>& stones, Position pos) const 
 }
 
 bool Board::canOpponentBreakFive(Position loc, Piece player) const {
-    const Piece opp = (player == BLACK) ? WHITE : BLACK;
+    const Piece opp = Game::opponent(player);
     const auto stones = getWinningStones(loc, player);
 
     for (const auto& stone : stones) {
@@ -138,7 +139,7 @@ void Board::undo() {
 
     if (last_move.getType() == CAPTURE) {
         for (auto& pos : last_move.getRemovedPositions())
-            setPiece(pos, last_move.getPiece() == BLACK ? WHITE : BLACK);
+            setPiece(pos, Game::opponent(last_move.getPiece()));
         incrementCaptureCount(last_move.getPiece(), -static_cast<int>(last_move.getRemovedPositions().size() / 2));
     }
 
@@ -163,7 +164,7 @@ CaptureInfo Board::findCaptures(const Move& m, Piece opponent) const {
 }
 
 int Board::countCaptureThreats(Piece player) const {
-    const Piece opponent = (player == BLACK) ? WHITE : BLACK;
+    const Piece opponent = Game::opponent(player);
     int threats = 0;
 
     for (int x = 0; x < BOARD_SIZE; ++x) {

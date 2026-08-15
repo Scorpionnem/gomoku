@@ -65,7 +65,7 @@ void		Gomoku::getAction(Input &input)
 
 void	Gomoku::playMove(Move move)
 {
-    game.getBoard().applyMove(move, game.opponent());
+    game.getBoard().applyMove(move, game.getOpponent());
 
     if (game.getBoard().isWin(game.getCurrentPlayer()))
 	{
@@ -73,13 +73,13 @@ void	Gomoku::playMove(Move move)
         return ;
     }
 
-    if (game.getBoard().isWin(game.opponent()))
+    if (game.getBoard().isWin(game.getOpponent()))
 	{
-		std::cout << Game::toString(game.opponent()) << " wins" << std::endl;
+		std::cout << Game::toString(game.getOpponent()) << " wins" << std::endl;
         return ;
     }
 
-    game.setCurrentPlayer(game.opponent());
+    game.setCurrentPlayer(game.getOpponent());
 }
 
 void	Gomoku::updateGame(Input &input)
@@ -92,7 +92,7 @@ void	Gomoku::updateGame(Input &input)
 	if (input.wasPressed(SDLK_SPACE))
 	{
 		game.getBoard().undo();
-		game.setCurrentPlayer(game.opponent());
+		game.setCurrentPlayer(game.getOpponent());
 	}
 
 	Move moveInstance;

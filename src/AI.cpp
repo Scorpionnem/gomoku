@@ -2,6 +2,7 @@
 #include "Heuristic.hpp"
 #include "Move.hpp"
 #include "Chrono.hpp"
+#include "Game.hpp"
 
 #include <iostream>
 
@@ -13,11 +14,11 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
 	explored_nodes++;
 	max_depth_explored = std::max(depth, max_depth_explored);
 
-    const Piece opp = (toMove == BLACK) ? WHITE : BLACK;
+    const Piece opp = Game::opponent(toMove);
     const bool maximizing = (toMove == ai);
 
     if (board.isWin(ai)) return WIN_SCORE + depth;
-    if (board.isWin(ai == BLACK ? WHITE : BLACK)) return -WIN_SCORE - depth;
+    if (board.isWin(Game::opponent(ai))) return -WIN_SCORE - depth;
     if (depth >= max_depth) return Heuristic::evaluate(board, ai);
 
     Move moveInstance;
@@ -75,7 +76,7 @@ Move AI::bestMove(Board board, Piece ai, int max_depth_)
     if (moves.empty())
         return {{BOARD_SIZE / 2, BOARD_SIZE / 2}, ai};
 
-    const Piece opp = (ai == BLACK) ? WHITE : BLACK;
+    const Piece opp = Game::opponent(ai);
     Move best = moves.front();
     int bestScore = INT_MIN;
     int alpha = INT_MIN;

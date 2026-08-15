@@ -17,6 +17,7 @@ class AI {
         static const int            WIN_SCORE = 1000000;
 
         static int                  alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, int beta);
+        static void                 orderMoves(Board& board, std::vector<Move>& moves, Piece ai, Piece toMove, bool useHeuristic);
 };
 
 #endif

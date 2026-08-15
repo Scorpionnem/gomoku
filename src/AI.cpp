@@ -2,6 +2,7 @@
 #include "Heuristic.hpp"
 #include "Move.hpp"
 #include "Chrono.hpp"
+#include "Game.hpp"
 
 #include <iostream>
 
@@ -13,17 +14,18 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
 	explored_nodes++;
 	max_depth_explored = std::max(depth, max_depth_explored);
 
-    const Piece opp = (toMove == BLACK) ? WHITE : BLACK;
+    const Piece opp = Game::opponent(toMove);
     const bool maximizing = (toMove == ai);
 
-    if (board.isWin(ai)) return WIN_SCORE + depth;
-    if (board.isWin(ai == BLACK ? WHITE : BLACK)) return -WIN_SCORE - depth;
-    if (depth >= max_depth) return Heuristic::evaluate(board, ai);
+    if (depth >= max_depth)
+        return Heuristic::evaluate(board, ai);
 
     Move moveInstance;
     std::vector<Move> moves = moveInstance.getLegalMoves(board, toMove);
-    if (moves.empty())
-		return Heuristic::evaluate(board, ai);
+    if (moves.empty()) {
+        int score = Heuristic::evaluate(board, ai);
+		return score;
+    }
 
     if (maximizing)
 	{
@@ -61,7 +63,7 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
     return best;
 }
 
-Move AI::bestMove(Board board, Piece ai, int max_depth_)
+Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 {
 	max_depth = max_depth_;
 
@@ -70,20 +72,21 @@ Move AI::bestMove(Board board, Piece ai, int max_depth_)
 	explored_nodes = 0;
 	max_depth_explored = 0;
 
+    Board search = board;
     Move moveInstance;
-    std::vector<Move> moves = moveInstance.getLegalMoves(board, ai);
+    std::vector<Move> moves = moveInstance.getLegalMoves(search, ai);
     if (moves.empty())
         return {{BOARD_SIZE / 2, BOARD_SIZE / 2}, ai};
 
-    const Piece opp = (ai == BLACK) ? WHITE : BLACK;
+    const Piece opp = Game::opponent(ai);
     Move best = moves.front();
     int bestScore = INT_MIN;
     int alpha = INT_MIN;
 
     for (Move& move : moves) {
-        board.applyMove(move, opp);
-        int score = alphabeta(board, ai, opp, 0, alpha, INT_MAX);
-        board.undo();
+        search.applyMove(move, opp);
+        int score = alphabeta(search, ai, opp, 0, alpha, INT_MAX);
+        search.undo();
 
         if (score > bestScore) bestScore = score, best = move;
         if (bestScore > alpha) alpha = bestScore;

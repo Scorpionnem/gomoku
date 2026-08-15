@@ -4,6 +4,7 @@
 # include "Game.hpp"
 # include "Move.hpp"
 
+# include <iostream>
 # define BLACK_COLOR Color{0, 0, 0}
 # define WHITE_COLOR Color{255, 255, 255}
 # define RED_COLOR Color{255, 0, 0}

@@ -5,10 +5,6 @@
 
 #include <SDL2/SDL.h>
 
-#include <map>
-#include <string>
-#include <iostream>
-
 struct SDL_Window;
 
 class Config;

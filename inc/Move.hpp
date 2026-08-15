@@ -34,9 +34,9 @@ class Move {
         MoveType                _type = PLACEMENT;
         std::vector<Position>   _removedPositions = {};
 
-        bool                    countPattern(Board& board, Position position, Position direction, Piece player, const std::vector<int>& pattern) const;
-        bool                    isDoubleThree(Board board, Move m, Piece player) const;
-        bool                    isFreeThree(Board board, Position position, Position direction, Piece player) const;
+        bool                    countPattern(const Board& board, Position position, Position direction, Piece player, const std::vector<int>& pattern) const;
+        bool                    isDoubleThree(Board& board, const Move& m, Piece player) const;
+        bool                    isFreeThree(const Board& board, Position position, Position direction, Piece player) const;
         std::vector<Move>       getNearbyMoves(const Board& board, Piece player) const;
 
     public:
@@ -47,16 +47,16 @@ class Move {
         Position                getPosition() const { return _position; }
         Piece                   getPiece() const { return _piece; }
         MoveType                getType() const { return _type; }
-        std::vector<Position>   getRemovedPositions() const { return _removedPositions; }
+        const std::vector<Position>& getRemovedPositions() const { return _removedPositions; }
 
         void                    setPosition(Position position) { _position = position; }
         void                    setPiece(Piece piece) { _piece = piece; }
         void                    setType(MoveType type) { _type = type; }
-        void                    setRemovedPositions(std::vector<Position> removedPositions) { _removedPositions = removedPositions; }
+        void                    setRemovedPositions(const std::vector<Position>& removedPositions) { _removedPositions = removedPositions; }
 
-        std::vector<Move>       getIllegalMoves(const Board& board, Piece player) const;
-        std::vector<Move>       getLegalMoves(const Board& board, Piece player) const;
-        static bool             isIllegalMove(const Board& board, Move m);
+        std::vector<Move>       getIllegalMoves(Board& board, Piece player) const;
+        std::vector<Move>       getLegalMoves(Board& board, Piece player) const;
+        static bool             isIllegalMove(const Board& board, const Move& m);
     };
 
 #endif

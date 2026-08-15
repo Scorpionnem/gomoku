@@ -25,8 +25,7 @@ void	Gomoku::loop()
 		{
 			updateGame(input);
 		}
-		else if (state == State::MENU)
-			;
+		else if (state == State::MENU) {}
 
 		win.swapBuffers();
 		SDL_Delay(16);

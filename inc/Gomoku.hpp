@@ -64,4 +64,5 @@ class	Gomoku
 
 		State	state = State::GAME;
 		int		turn = 0;
+		Move	aiMove = {};
 };

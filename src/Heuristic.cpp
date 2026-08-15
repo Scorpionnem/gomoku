@@ -1,13 +1,15 @@
 #include "Heuristic.hpp"
 #include "Game.hpp"
 
-const int CAPTURE_WEIGHT = 2000;
-const int CAPTURE_THREAT_WEIGHT = 300;
+#define WIN_WEIGHT 200000
+
+#include <iostream>
+#include <cmath>
 
 static int evalPattern(int length, int openEnds)
 {
     if (length >= 5)
-        return (200000);
+        return (WIN_WEIGHT);
     if (length == 4)
         return (openEnds == 2 ? 50000 : openEnds == 1 ? 5000 : 0);
     if (length == 3)
@@ -51,9 +53,11 @@ static int alignmentScore(const Board& board, Piece player)
 static int playerScore(const Board& board, Piece player)
 {
     int score = 0;
-    score += board.getCaptureCount(player) * CAPTURE_WEIGHT;
+	score += (board.getLastMove().getType() == CAPTURE) * 200000;
+    score += std::ceil((std::exp(board.getCaptureCount(player)) - 1) * 1356.73);
     score += alignmentScore(board, player);
-    score += board.countCaptureThreats(player) * CAPTURE_THREAT_WEIGHT;
+    score += std::ceil((std::exp(board.countCaptureThreats(player)) - 1) * 1356.73) / 2;
+	score += board.isWin(player) * WIN_WEIGHT;
     return score;
 }
 

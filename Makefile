@@ -24,7 +24,7 @@ LFLAGS :=		$(SDL_LIBS) -lGL -lSDL2_ttf
 
 INCLUDE_DIRS :=	-I$(INC_DIR) $(SDL_CFLAGS) -I$(LIB_DIR)
 
-FLAGS 		:= -Wall -Werror -Wextra -g $(INCLUDE_DIRS) -std=c++20 -MMD -MP -O3
+FLAGS 		:= -Wall -Werror -Wextra -g $(INCLUDE_DIRS) -std=c++20 -MMD -MP -O3 # -fsanitize=address -fno-omit-frame-pointer
 
 
 DEPS		:=	$(OBJS:.o=.d)

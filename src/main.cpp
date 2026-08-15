@@ -1,6 +1,7 @@
 #include "Gomoku.hpp"
 
 #include <iostream>
+#include <cmath>
 
 int main()
 {

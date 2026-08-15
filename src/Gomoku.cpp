@@ -6,6 +6,7 @@ bool humanPlayer = true;
 void	Gomoku::init()
 {
 	win.open(WINDOW_TITLE, WINDOW_SIZE_X, WINDOW_SIZE_Y);
+	AI::v.threads.add(16);
 }
 
 void	Gomoku::loop()
@@ -34,10 +35,19 @@ void	Gomoku::loop()
 
 void		Gomoku::getAction(Input &input)
 {
+	static bool	AI_played = false;
 	if (humanPlayer)
 	{
+		if (AI_played == false)
+		{
+			aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 3);
+			AI_played = true;
+		}
+
 		if (input.wasPressed(SDL_BUTTON_LEFT))
 		{
+			AI_played = false;
+
 			int	x = input.mouseX() / TILE_SIZE;
 			int	y = input.mouseY() / TILE_SIZE;
 			
@@ -56,12 +66,23 @@ void		Gomoku::getAction(Input &input)
 			humanPlayer = false;
 		}
 	}
-	else if (!humanPlayer) {
-		Move aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
-		playMove(aiMove);	
-		humanPlayer = true;
-		turn++;
+	else if (!humanPlayer)
+	{
+		if (AI_played == false)
+		{
+			aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
+			AI_played = true;
+		}
+
+		if (input.wasPressed(SDLK_TAB))
+		{
+			AI_played = false;
+			playMove(aiMove);	
+			humanPlayer = true;
+			turn++;
+		}
 	}
+	(void)input;
 }
 
 void	Gomoku::playMove(Move move)
@@ -86,6 +107,22 @@ void	Gomoku::updateGame(Input &input)
 	);
 	for (Move& move : illegalMoves)
 		drawPiece(move.getPosition(), RED_COLOR);
+	int	big = 0;
+	for (auto &m : AI::v.ai_moves)
+		if (m.score > big)
+			big = m.score;
+	for (auto &m : AI::v.ai_moves)
+		drawPiece(m.m.getPosition(), Color{(int)(((float)m.score / (float)big) * 255), 255, 0});
+
+	drawPiece(aiMove.getPosition(), Color{0, 0, 255});
+	
+	int	x = input.mouseX() / TILE_SIZE;
+	int	y = input.mouseY() / TILE_SIZE;
+	for (auto &m : AI::v.ai_moves)
+	{
+		if (m.m.getPosition().x == x && m.m.getPosition().y == y)
+			win.drawText("score: " + std::to_string(m.score), input.mouseX(), input.mouseY());
+	}
 
 	for (int x = 0; x < BOARD_SIZE; x++)
 		for (int y = 0; y < BOARD_SIZE; y++)
@@ -97,14 +134,18 @@ void	Gomoku::updateGame(Input &input)
 				win.drawPiece(position.x * TILE_SIZE, position.y * TILE_SIZE, 1);
 		}
 
+	SDL_RenderPresent(win.getRenderer());
+
 	renderOutline({input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE}, BLACK_COLOR);
 	if (input.wasPressed(SDL_BUTTON_LEFT))
-		renderOutline({input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE}, GREEN_COLOR);
+		renderOutline({input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE}, GREEN_COLOR);	
 
-	win.drawText("time: " + std::to_string(AI::time) + "s", 9, WIN_BOARD_SIZE + 14);
-	win.drawText("depth: " + std::to_string(AI::max_depth_explored), 9, WIN_BOARD_SIZE + 14 + 24);
-	win.drawText("nodes: " + std::to_string(AI::explored_nodes), 9, WIN_BOARD_SIZE + 14 + 24 + 24);
+	win.drawText("time: " + std::to_string(AI::v.time) + "s", 9, WIN_BOARD_SIZE + 14);
+	win.drawText("depth: " + std::to_string(AI::v.max_depth_explored), 9, WIN_BOARD_SIZE + 14 + 24);
+	win.drawText("nodes: " + std::to_string(AI::v.explored_nodes), 9, WIN_BOARD_SIZE + 14 + 24 + 24);
 	win.drawText("turn: " + std::to_string(turn), 309, WIN_BOARD_SIZE + 14 + 24 + 24);
+	win.drawText("bco: " + std::to_string(AI::v.branches_cut_off), 309, WIN_BOARD_SIZE + 14);
+	win.drawText("bre " + std::to_string(AI::v.branches_reach_end), 309, WIN_BOARD_SIZE + 14 + 24);
 
 	if (game.getBoard().isWin(WHITE)
 		|| game.getBoard().isWin(BLACK))
@@ -113,6 +154,8 @@ void	Gomoku::updateGame(Input &input)
 		std::string winner_str = winner == BLACK ? "black" : "white";
 
 		win.drawText(winner_str + " wins", 0, 0, 255, 255, 0);
+
+		return ;
 	}
 	else
 	{

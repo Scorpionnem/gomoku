@@ -9,14 +9,11 @@
 #include <utility>
 #include <vector>
 
-int	AI::explored_nodes = 0;
-int	AI::max_depth = 0;
-int	AI::max_depth_explored = 0;
-double	AI::time = 0;
+AI::_	AI::v = {};
 
 Chrono	c;
 
-static int cheapMoveScore(const Board& board, const Move& move, Piece opponent)
+int cheapMoveScore(const Board& board, const Move& move, Piece opponent)
 {
     int score = board.findCaptures(move, opponent).capturedCount * 10000;
     Move last = board.getLastMove();
@@ -60,22 +57,39 @@ void AI::orderMoves(Board& board, std::vector<Move>& moves, Piece ai, Piece toMo
         moves[i] = std::move(scored[i].second);
 }
 
-int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, int beta) {
-	explored_nodes++;
-	max_depth_explored = std::max(depth, max_depth_explored);
+int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, int beta)
+{
+	v.explored_nodes++;
+	v.max_depth_explored = std::max(depth, v.max_depth_explored);
 
     const Piece opp = Game::opponent(toMove);
     const bool maximizing = (toMove == ai);
 
-    if (depth >= max_depth || c.get() > .45)
-        return Heuristic::evaluate(board, ai);
+	if (board.isWin(toMove))
+	{
+        return Heuristic::evaluate(board, opp);
+	}
+    if (board.isWin(opp))
+	{
+        return Heuristic::evaluate(board, opp);
+	}
+    if (depth >= v.max_depth)
+	{
+		AI::v.branches_reach_end++;
+        return Heuristic::evaluate(board, opp);
+	}
+	if (c.get() > 0.5)
+	{
+		AI::v.branches_cut_off++;
+        return Heuristic::evaluate(board, opp);
+	}
 
     Move moveInstance;
     std::vector<Move> moves = moveInstance.getLegalMoves(board, toMove);
     if (moves.empty())
-        return Heuristic::evaluate(board, ai);
+        return Heuristic::evaluate(board, opp);
 
-    orderMoves(board, moves, ai, toMove, depth <= 1);
+    orderMoves(board, moves, ai, toMove, depth <= 2);
 
     int best = maximizing ? INT_MIN : INT_MAX;
     for (Move& move : moves)
@@ -108,9 +122,11 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 {
 	c.start();
 
-	max_depth = max_depth_;
-	explored_nodes = 0;
-	max_depth_explored = 0;
+	v.max_depth = max_depth_;
+	v.explored_nodes = 0;
+	v.max_depth_explored = 0;
+	v.branches_cut_off = 0;
+	v.branches_reach_end = 0;
 
     Board search = board;
     Move moveInstance;
@@ -123,19 +139,42 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 
     Move best = moves.front();
     int bestScore = INT_MIN;
-    int alpha = INT_MIN;
+	int alpha = INT_MIN;(void)alpha;
 
-    for (Move& move : moves) {
-        if (c.get() > 0.40)
-            break;
-        search.applyMove(move, opp);
+	// std::mutex	mutex;
+    // for (Move& move : moves)
+	// {
+    //     search.applyMove(move, opp);
+	// 	threads.queue_task([&mutex, &bestScore, &best, &move, search, ai, opp]()
+	// 	{
+	// 		Board	b = search;
+	// 		int score = alphabeta(b, ai, opp, 0, INT_MIN, INT_MAX);
+
+	// 		mutex.lock();
+	// 		if (score > bestScore) bestScore = score, best = move;
+	// 		mutex.unlock();
+	// 	});
+    //     search.undo();
+    // }
+
+	v.ai_moves.clear();
+
+	for (Move& move : moves)
+	{
+        search.applyMove(move, ai);
         int score = alphabeta(search, ai, opp, 0, alpha, INT_MAX);
         search.undo();
+
+		v.ai_moves.push_back(AI::_::MoveScore{move, score});
 
         if (score > bestScore) bestScore = score, best = move;
         if (bestScore > alpha) alpha = bestScore;
     }
 
-	time = c.get();
+	v.threads.wait_finish();
+
+	v.time = c.get();
+	if (v.time >= .5)
+		std::cerr << "WTF OMG WHATS GOING ON NOOO (time over .5)\n";
     return best;
 }

@@ -2,15 +2,30 @@
 # define MANDA_AI_HPP
 
 # include "Board.hpp"
+# include "ThreadPool.hpp"
 # include "Move.hpp"
 # include <climits>
 
 class AI {
     public:
-		static int	explored_nodes;
-		static int	max_depth;
-		static int	max_depth_explored;
-		static double	time;
+		struct	_
+		{
+			struct	MoveScore
+			{
+				Move	m;
+				int		score;
+			};
+			std::vector<MoveScore>	ai_moves;
+
+			int			explored_nodes;
+			int			max_depth_explored;
+			int			branches_cut_off;
+			int			branches_reach_end;
+			int			max_depth;
+			double		time;
+			ThreadPool	threads;
+		};
+		static AI::_	v;
         static Move                 bestMove(const Board& board, Piece ai, int depth);
 
     private:

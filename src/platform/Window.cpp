@@ -195,7 +195,7 @@ void    Window::_initSDL()
 
 void    Window::_createWindow(const char *title, u32 width, u32 height)
 {
-	_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_BORDERLESS);
+	_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
 	if (!_window)
 	{
 		close();

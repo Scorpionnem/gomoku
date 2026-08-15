@@ -57,7 +57,7 @@ void		Gomoku::getAction(Input &input)
 		}
 	}
 	else if (!humanPlayer) {
-		Move aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 4);
+		Move aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
 		playMove(aiMove);	
 		humanPlayer = true;
 		turn++;
@@ -106,10 +106,12 @@ void	Gomoku::updateGame(Input &input)
 	win.drawText("nodes: " + std::to_string(AI::explored_nodes), 9, WIN_BOARD_SIZE + 14 + 24 + 24);
 	win.drawText("turn: " + std::to_string(turn), 309, WIN_BOARD_SIZE + 14 + 24 + 24);
 
-	if (game.getBoard().isWin(game.getCurrentPlayer())
-		|| game.getBoard().isWin(game.getOpponent()))
+	if (game.getBoard().isWin(WHITE)
+		|| game.getBoard().isWin(BLACK))
 	{
-		std::string winner_str = game.getCurrentPlayer() == BLACK ? "black" : "white";
+		Piece	winner = game.getBoard().isWin(WHITE) ? WHITE : BLACK;
+		std::string winner_str = winner == BLACK ? "black" : "white";
+
 		win.drawText(winner_str + " wins", 0, 0, 255, 255, 0);
 	}
 	else

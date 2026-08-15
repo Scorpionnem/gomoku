@@ -6,10 +6,14 @@
 
 #include <iostream>
 
-int	AI::explored_nodes;
-int	AI::max_depth;
-int	AI::max_depth_explored;
-double	AI::time;
+int	AI::explored_nodes = 0;
+int	AI::max_depth = 0;
+int	AI::max_depth_explored = 0;
+double	AI::time = 0;
+
+#include "ThreadPool.hpp"
+
+Chrono	c;
 
 int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, int beta) {
 	explored_nodes++;
@@ -18,7 +22,7 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
     const Piece opp = Game::opponent(toMove);
     const bool maximizing = (toMove == ai);
 
-    if (depth >= max_depth)
+    if (depth >= max_depth || c.get() > 0.45)
         return Heuristic::evaluate(board, ai);
 
     Move moveInstance;
@@ -66,7 +70,7 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
 
 Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 {
-	Chrono	c;
+	c.start();
 
 	max_depth = max_depth_;
 	explored_nodes = 0;

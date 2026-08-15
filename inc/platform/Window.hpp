@@ -79,6 +79,7 @@ class Window
 		SDL_Texture		*board_tex = nullptr;
 		SDL_Texture		*black_tex = nullptr;
 		SDL_Texture		*white_tex = nullptr;
+		SDL_Texture		*hotbar_tex = nullptr;
 
 		u32				_width = 0;
 		u32				_height = 0;

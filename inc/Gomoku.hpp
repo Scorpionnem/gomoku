@@ -23,7 +23,9 @@ class	Gomoku
 	#define TILES 19
 	#define TILE_SIZE 32
 	#define PIECE_SIZE 22
-	#define WINDOW_SIZE (TILES * TILE_SIZE)
+	#define WIN_BOARD_SIZE (TILES * TILE_SIZE)
+	#define WINDOW_SIZE_X (TILES * TILE_SIZE)
+	#define WINDOW_SIZE_Y (TILES * TILE_SIZE + TILE_SIZE * 3)
 	#define WINDOW_TITLE "Gomoku"
 	enum Player
 	{

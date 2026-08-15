@@ -5,7 +5,7 @@ bool humanPlayer = true;
 
 void	Gomoku::init()
 {
-	win.open(WINDOW_TITLE, WINDOW_SIZE);
+	win.open(WINDOW_TITLE, WINDOW_SIZE_X, WINDOW_SIZE_Y);
 }
 
 void	Gomoku::loop()
@@ -41,6 +41,9 @@ void		Gomoku::getAction(Input &input)
 			int	x = input.mouseX() / TILE_SIZE;
 			int	y = input.mouseY() / TILE_SIZE;
 			
+			if (x >= BOARD_SIZE || y >= BOARD_SIZE || x < 0 || y < 0)
+				return ;
+
 			Position position = {x, y};
 			Move playerMove = {position, game.getCurrentPlayer()};
 

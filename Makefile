@@ -20,7 +20,7 @@ CC			:= c++
 
 SDL_CFLAGS :=	$(shell sdl2-config --cflags)
 SDL_LIBS :=		$(shell sdl2-config --libs)
-LFLAGS :=		$(SDL_LIBS) -lGL
+LFLAGS :=		$(SDL_LIBS) -lGL -lSDL2_ttf
 
 INCLUDE_DIRS :=	-I$(INC_DIR) $(SDL_CFLAGS) -I$(LIB_DIR)
 

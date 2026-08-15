@@ -63,4 +63,5 @@ class	Gomoku
 		bool	running = false;
 
 		State	state = State::GAME;
+		int		turn = 0;
 };

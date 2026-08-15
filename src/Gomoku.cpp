@@ -60,6 +60,7 @@ void		Gomoku::getAction(Input &input)
 		Move aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 2);
 		playMove(aiMove);	
 		humanPlayer = true;
+		turn++;
 	}
 }
 
@@ -67,17 +68,9 @@ void	Gomoku::playMove(Move move)
 {
     game.getBoard().applyMove(move, game.getOpponent());
 
-    if (game.getBoard().isWin(game.getCurrentPlayer()))
-	{
-		std::cout << Game::toString(game.getCurrentPlayer()) << " wins" << std::endl;
+    if (game.getBoard().isWin(BLACK)
+		|| game.getBoard().isWin(WHITE))
         return ;
-    }
-
-    if (game.getBoard().isWin(game.getOpponent()))
-	{
-		std::cout << Game::toString(game.getOpponent()) << " wins" << std::endl;
-        return ;
-    }
 
     game.setCurrentPlayer(game.getOpponent());
 }
@@ -85,15 +78,6 @@ void	Gomoku::playMove(Move move)
 void	Gomoku::updateGame(Input &input)
 {
 	win.drawBoard();
-
-	getAction(input);
-
-	// TEMPORARY INPUT FOR DEBUGGING
-	if (input.wasPressed(SDLK_SPACE))
-	{
-		game.getBoard().undo();
-		game.setCurrentPlayer(game.getOpponent());
-	}
 
 	Move moveInstance;
 	auto illegalMoves = moveInstance.getIllegalMoves(
@@ -116,6 +100,30 @@ void	Gomoku::updateGame(Input &input)
 	renderOutline({input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE}, BLACK_COLOR);
 	if (input.wasPressed(SDL_BUTTON_LEFT))
 		renderOutline({input.mouseX() / TILE_SIZE, input.mouseY() / TILE_SIZE}, GREEN_COLOR);
+
+	win.drawText("time: " + std::to_string(AI::time) + "s", 9, WIN_BOARD_SIZE + 14);
+	win.drawText("depth: " + std::to_string(AI::max_depth_explored), 9, WIN_BOARD_SIZE + 14 + 24);
+	win.drawText("nodes: " + std::to_string(AI::explored_nodes), 9, WIN_BOARD_SIZE + 14 + 24 + 24);
+	win.drawText("turn: " + std::to_string(turn), 309, WIN_BOARD_SIZE + 14 + 24 + 24);
+
+	if (game.getBoard().isWin(game.getCurrentPlayer())
+		|| game.getBoard().isWin(game.getOpponent()))
+	{
+		std::string winner_str = game.getCurrentPlayer() == BLACK ? "black" : "white";
+		win.drawText(winner_str + " wins", 0, 0, 255, 255, 0);
+	}
+	else
+	{
+		getAction(input);
+	
+		// TEMPORARY INPUT FOR DEBUGGING
+		if (input.wasPressed(SDLK_SPACE))
+		{
+			game.getBoard().undo();
+			game.setCurrentPlayer(game.getOpponent());
+		}
+	}
+
 }
 
 void	Gomoku::drawTile(Position position, Color color)

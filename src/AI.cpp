@@ -6,9 +6,10 @@
 
 #include <iostream>
 
-int	explored_nodes = 0;
-int	max_depth = 0;
-int	max_depth_explored = 0;
+int	AI::explored_nodes;
+int	AI::max_depth;
+int	AI::max_depth_explored;
+double	AI::time;
 
 int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, int beta) {
 	explored_nodes++;
@@ -65,10 +66,9 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
 
 Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 {
-	max_depth = max_depth_;
-
 	Chrono	c;
 
+	max_depth = max_depth_;
 	explored_nodes = 0;
 	max_depth_explored = 0;
 
@@ -92,8 +92,6 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
         if (bestScore > alpha) alpha = bestScore;
     }
 
-	std::cout << "Move found in: " << c.get() << " seconds" << std::endl;
-	std::cout << "Explored nodes " << explored_nodes << std::endl;
-	std::cout << "Max depth " << max_depth_explored << std::endl;
+	time = c.get();
     return best;
 }

@@ -90,7 +90,7 @@ bool Board::canOpponentBreakFive(Position loc, Piece player) const {
     return false;
 }
 
-bool Board::isWin(Piece player) {
+bool Board::isWin(Piece player) const {
     if (getCaptureCount(player) >= WIN_CAPTURES)
         return true;
 
@@ -139,7 +139,7 @@ void Board::undo() {
     if (last_move.getType() == CAPTURE) {
         for (auto& pos : last_move.getRemovedPositions())
             setPiece(pos, last_move.getPiece() == BLACK ? WHITE : BLACK);
-        incrementCaptureCount(last_move.getPiece(), -last_move.getRemovedPositions().size());
+        incrementCaptureCount(last_move.getPiece(), -static_cast<int>(last_move.getRemovedPositions().size() / 2));
     }
 
     setPiece(last_move.getPosition(), EMPTY);

@@ -7,7 +7,7 @@
 
 class AI {
     public:
-        static Move                 bestMove(Board board, Piece ai, int depth);
+        static Move                 bestMove(const Board& board, Piece ai, int depth);
 
     private:
         static const int            WIN_SCORE = 1000000;

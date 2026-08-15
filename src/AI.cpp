@@ -17,14 +17,15 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
     const Piece opp = Game::opponent(toMove);
     const bool maximizing = (toMove == ai);
 
-    if (board.isWin(ai)) return WIN_SCORE + depth;
-    if (board.isWin(Game::opponent(ai))) return -WIN_SCORE - depth;
-    if (depth >= max_depth) return Heuristic::evaluate(board, ai);
+    if (depth >= max_depth)
+        return Heuristic::evaluate(board, ai);
 
     Move moveInstance;
     std::vector<Move> moves = moveInstance.getLegalMoves(board, toMove);
-    if (moves.empty())
-		return Heuristic::evaluate(board, ai);
+    if (moves.empty()) {
+        int score = Heuristic::evaluate(board, ai);
+		return score;
+    }
 
     if (maximizing)
 	{
@@ -35,12 +36,13 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
             int score = alphabeta(board, ai, opp, depth + 1, alpha, beta);
             board.undo();
 
-            if (score > best)
+            if (score > best) {
 				best = score;
-            if (best > alpha)
+            } if (best > alpha) {
 				alpha = best;
-            if (beta <= alpha)
+            } if (beta <= alpha) {
 				break ;
+            }
         }
         return best;
     }
@@ -52,17 +54,18 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
         int score = alphabeta(board, ai, opp, depth + 1, alpha, beta);
         board.undo();
 
-        if (score < best)
+        if (score < best) {
 			best = score;
-        if (best < beta)
+        } if (best < beta) {
 			beta = best;
-        if (beta <= alpha)
+        } if (beta <= alpha) {
 			break ;
+        }
     }
     return best;
 }
 
-Move AI::bestMove(Board board, Piece ai, int max_depth_)
+Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 {
 	max_depth = max_depth_;
 
@@ -71,8 +74,9 @@ Move AI::bestMove(Board board, Piece ai, int max_depth_)
 	explored_nodes = 0;
 	max_depth_explored = 0;
 
+    Board search = board;
     Move moveInstance;
-    std::vector<Move> moves = moveInstance.getLegalMoves(board, ai);
+    std::vector<Move> moves = moveInstance.getLegalMoves(search, ai);
     if (moves.empty())
         return {{BOARD_SIZE / 2, BOARD_SIZE / 2}, ai};
 
@@ -82,9 +86,9 @@ Move AI::bestMove(Board board, Piece ai, int max_depth_)
     int alpha = INT_MIN;
 
     for (Move& move : moves) {
-        board.applyMove(move, opp);
-        int score = alphabeta(board, ai, opp, 0, alpha, INT_MAX);
-        board.undo();
+        search.applyMove(move, opp);
+        int score = alphabeta(search, ai, opp, 0, alpha, INT_MAX);
+        search.undo();
 
         if (score > bestScore) bestScore = score, best = move;
         if (bestScore > alpha) alpha = bestScore;

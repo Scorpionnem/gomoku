@@ -1,12 +1,13 @@
 #include "Move.hpp"
 #include "Board.hpp"
 
-bool Move::isIllegalMove(const Board& board, Move m) {
+bool Move::isIllegalMove(const Board& board, const Move& m) {
     if (board.isOutOfBounds(m.getPosition()) || board.getPiece(m.getPosition()) != EMPTY)
         return true;
 
+    Board tmp = board;
     Move moveInstance;
-    return moveInstance.isDoubleThree(board, m, m.getPiece());
+    return moveInstance.isDoubleThree(tmp, m, m.getPiece());
 }
 
 std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) const {
@@ -33,14 +34,14 @@ std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) const {
     return moves;
 }
 
-std::vector<Move> Move::getIllegalMoves(const Board& board, Piece player) const {
+std::vector<Move> Move::getIllegalMoves(Board& board, Piece player) const {
     std::vector<Move> illegal;
     for (Move& m : getNearbyMoves(board, player))
         if (isDoubleThree(board, m, player)) illegal.push_back(m);
     return illegal;
 }
 
-std::vector<Move> Move::getLegalMoves(const Board& board, Piece player) const {
+std::vector<Move> Move::getLegalMoves(Board& board, Piece player) const {
     std::vector<Move> nearby = getNearbyMoves(board, player);
     if (nearby.empty()) return {{{BOARD_SIZE / 2, BOARD_SIZE / 2}, player}};
 
@@ -50,7 +51,7 @@ std::vector<Move> Move::getLegalMoves(const Board& board, Piece player) const {
 }
 
 bool Move::countPattern(
-    Board& board,
+    const Board& board,
     Position position,
     Position direction,
     Piece player,
@@ -96,7 +97,7 @@ bool Move::countPattern(
     return false;     
 };
 
-bool Move::isFreeThree(Board board, Position position, Position direction, Piece player) const
+bool Move::isFreeThree(const Board& board, Position position, Position direction, Piece player) const
 {
     if (countPattern(board, position, direction, player, {0, 1, 1, 1, 0}))
         return true;
@@ -108,7 +109,7 @@ bool Move::isFreeThree(Board board, Position position, Position direction, Piece
     return false;
 }
 
-bool Move::isDoubleThree(Board board, Move m, Piece player) const
+bool Move::isDoubleThree(Board& board, const Move& m, Piece player) const
 {
     board.play(m);
     int freeThreeCount = 0;

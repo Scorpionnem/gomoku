@@ -57,7 +57,7 @@ void		Gomoku::getAction(Input &input)
 		}
 	}
 	else if (!humanPlayer) {
-		Move aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 3);
+		Move aiMove = AI::bestMove(game.getBoard(), game.getCurrentPlayer(), 2);
 		playMove(aiMove);	
 		humanPlayer = true;
 	}

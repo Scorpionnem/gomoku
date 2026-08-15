@@ -15,7 +15,7 @@ std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) const {
 
     for (int x = 0; x < BOARD_SIZE; ++x) {
         for (int y = 0; y < BOARD_SIZE; ++y) {
-            if (board.getPiece({x, y}) == EMPTY)
+            if (board.isEmpty({x, y}))
                 continue;
 
             for (int dx = -2; dx <= 2; ++dx) {

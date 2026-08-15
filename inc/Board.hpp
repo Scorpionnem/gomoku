@@ -28,11 +28,11 @@ class Board {
         std::vector<Move>       _history = {};
         int                     _captureCount[2] = {0, 0};
 
-        int                     countRay(Position position, Position direction, Piece player, int maxSteps) const;
         bool                    hasFiveInARow(Position position, Piece player) const;
         std::vector<Position>   getWinningStones(Position loc, Piece player) const;
         bool                    isInStones(const std::vector<Position>& stones, Position pos) const;
         bool                    canOpponentBreakFive(Position loc, Piece player) const;
+        bool                    matchCaptureRay(Position from, Position dir, Piece pair, Piece end, Position& p1, Position& p2) const;
 
     public:
         Board() { std::fill(&_board[0][0], &_board[0][0] + BOARD_SIZE * BOARD_SIZE, EMPTY); };
@@ -40,6 +40,8 @@ class Board {
 
 		Piece	    (*getBoard())[BOARD_SIZE] {return (_board);}
         Piece       getPiece(Position position) const { return _board[position.x][position.y]; }
+        bool        isEmpty(Position position) const { return !isOutOfBounds(position) && getPiece(position) == EMPTY; }
+        int         countRay(Position position, Position direction, Piece player, int maxSteps) const;
 
         bool        isWin(Piece player) const;
         void        play(Move move);
@@ -56,6 +58,7 @@ class Board {
         bool        isOutOfBounds(Position position) const { return position.x < 0 || position.x >= BOARD_SIZE || position.y < 0 || position.y >= BOARD_SIZE; }
 
         CaptureInfo findCaptures(const Move& m, Piece opponent) const;
+        int         countCaptureThreats(Piece player) const;
         void        applyCaptures(CaptureInfo captureInfo) { for (auto& pos : captureInfo.removedPositions) _board[pos.x][pos.y] = EMPTY;}
 };
 

@@ -95,7 +95,7 @@ bool Board::isWin(Piece player) const {
         return true;
 
     Move last = getLastMove();
-    if (last.getPiece() == EMPTY)
+    if (isEmpty(last.getPosition()))
         return false;
 
     if (last.getPiece() == player) {
@@ -147,23 +147,46 @@ void Board::undo() {
 }
 
 CaptureInfo Board::findCaptures(const Move& m, Piece opponent) const {
-    const Piece me = m.getPiece();
     CaptureInfo captureInfo;
-    const int x = m.getPosition().x;
-    const int y = m.getPosition().y;
+    const Position from = m.getPosition();
+    const Piece me = m.getPiece();
+
     for (auto& d : DIRS) {
-        Position pos1 = {x + d[0], y + d[1]};
-        Position pos2 = {x + 2 * d[0], y + 2 * d[1]};
-        Position pos3 = {x + 3 * d[0], y + 3 * d[1]};
-        if (isOutOfBounds(pos1) || isOutOfBounds(pos2) || isOutOfBounds(pos3))
+        Position p1, p2;
+        if (!matchCaptureRay(from, {d[0], d[1]}, opponent, me, p1, p2))
             continue;
-        if (getPiece(pos1) == opponent &&
-            getPiece(pos2) == opponent &&
-            getPiece(pos3) == me) {
-            captureInfo.removedPositions.push_back(pos1);
-            captureInfo.removedPositions.push_back(pos2);
-            captureInfo.capturedCount += 1;
-        }
+        captureInfo.removedPositions.push_back(p1);
+        captureInfo.removedPositions.push_back(p2);
+        captureInfo.capturedCount += 1;
     }
     return captureInfo;
+}
+
+int Board::countCaptureThreats(Piece player) const {
+    const Piece opponent = (player == BLACK) ? WHITE : BLACK;
+    int threats = 0;
+
+    for (int x = 0; x < BOARD_SIZE; ++x) {
+        for (int y = 0; y < BOARD_SIZE; ++y) {
+            Position pos = {x, y};
+            if (getPiece(pos) != player)
+                continue;
+            for (auto& d : DIRS) {
+                Position p1, p2;
+                if (matchCaptureRay(pos, {d[0], d[1]}, opponent, EMPTY, p1, p2))
+                    ++threats;
+            }
+        }
+    }
+    return threats;
+}
+
+bool Board::matchCaptureRay(Position from, Position dir, Piece pair, Piece end, Position& p1, Position& p2) const {
+    p1 = {from.x + dir.x, from.y + dir.y};
+    p2 = {from.x + 2 * dir.x, from.y + 2 * dir.y};
+    Position p3 = {from.x + 3 * dir.x, from.y + 3 * dir.y};
+
+    if (isOutOfBounds(p1) || isOutOfBounds(p2) || isOutOfBounds(p3))
+        return false;
+    return getPiece(p1) == pair && getPiece(p2) == pair && getPiece(p3) == end;
 }

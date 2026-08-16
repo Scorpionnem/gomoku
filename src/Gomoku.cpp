@@ -360,7 +360,8 @@ void		Gomoku::getNextMove(Input &input)
 	if (play_frame)
 	{
 		player_turn = player_turn == PLAYER1 ? PLAYER2 : PLAYER1;
-		turn++;
+		if (player_turn == PLAYER1)
+			turn++;
 
 		playMove(move);
 	}

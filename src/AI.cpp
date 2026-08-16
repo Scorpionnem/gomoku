@@ -204,7 +204,7 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 
     _final_move = best;
 	_stats.time = c.get();
-	if (_stats.time >= .5)
+	if (_stats.time >= TIME_LIMIT)
 		std::cerr << "WTF OMG WHATS GOING ON NOOO (time over .5)\n";
     return best;
 }

@@ -47,7 +47,7 @@ class AI
 
 	public:
         static const int            WIN_SCORE = 1000000;
-        static constexpr double     TIME_LIMIT = 0.49;   // limite de temps (cahier des charges : 500ms)
+        static constexpr double     TIME_LIMIT = 0.495;
         static const int            MAX_CANDIDATES = 6;
 
 		Move	bestMove(const Board& b, Piece player, int max_depth);

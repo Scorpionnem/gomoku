@@ -45,7 +45,7 @@ void		Gomoku::getAction(Input &input)
 
 		if (compute_ai_move == false)
 		{
-			move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 3);
+			move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
 			compute_ai_move = true;
 		}
 
@@ -69,7 +69,7 @@ void		Gomoku::getAction(Input &input)
 	}
 	else if (player_type == AIPLAYER)
 	{
-		move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 3);
+		move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
 		play_frame = true;
 	}
 

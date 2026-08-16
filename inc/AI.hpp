@@ -2,7 +2,6 @@
 # define MANDA_AI_HPP
 
 # include "Board.hpp"
-# include "ThreadPool.hpp"
 # include "Move.hpp"
 # include "Heuristic.hpp"
 # include "Game.hpp"
@@ -47,112 +46,17 @@ class AI
 		};
 
 	public:
-		AI() {}
-		~AI() {}
+        static const int            WIN_SCORE = 1000000;
+        static constexpr double     TIME_LIMIT = 0.495;
+        static const int            MAX_CANDIDATES = 6;
 
-		int	minimax(const Board& b, Piece player, Piece opponent, bool maximizing, int depth, int max_depth, int alpha, int beta)
-		{
-			_stats.explored_nodes++;
-			_stats.max_depth = std::max(depth, _stats.max_depth);
-
-			Piece	mover = maximizing ? player : opponent;
-			Piece	other = maximizing ? opponent : player;
-
-			if (depth >= max_depth || b.isWin(other))
-			{
-				_stats.max_depth_nodes++;
-				return (Heuristic::evaluate(b, player));
-			}
-
-			Board	board = b;
-
-			std::vector<Move> moves = Move::getLegalMoves(board, mover);
-			if (moves.empty())
-				return (Heuristic::evaluate(b, player));
-
-			if (maximizing)
-			{
-				int	best = INT_MIN;
-
-				for (Move& m : moves)
-				{
-					Board	bcpy = b;
-					bcpy.applyMove(m, other);
-
-					int	score = minimax(bcpy, player, opponent, false, depth + 1, max_depth, alpha, beta);
-
-					best = std::max(best, score);
-					alpha = std::max(alpha, best);
-
-					if (beta <= alpha)
-						break ;
-				}
-				return (best);
-			}
-			else
-			{
-				int	best = INT_MAX;
-
-				for (Move& m : moves)
-				{
-					Board	bcpy = b;
-					bcpy.applyMove(m, other);
-
-					int	score = minimax(bcpy, player, opponent, true, depth + 1, max_depth, alpha, beta);
-
-					best = std::min(best, score);
-					beta = std::min(beta, best);
-
-					if (beta <= alpha)
-						break ;
-				}
-				return (best);
-			}
-		}
-
-		Move	bestMove(const Board& b, Piece player, int max_depth)
-		{
-			_time.start();
-			_stats = {};
-			_evaluated_moves.clear();
-
-			Board	board = b;
-			Piece	opponent = Game::opponent(player);
-
-			std::vector<Move> moves = Move::getLegalMoves(board, player);
-			if (moves.empty())
-				return {{BOARD_SIZE / 2, BOARD_SIZE / 2}, player};
-
-			Move	best_move = moves.front();
-			int		best_score = INT_MIN;
-			int		depth = 0;
-
-			_evaluated_moves.reserve(moves.size());
-
-			for (Move& m : moves)
-			{
-				Board	bcpy = b;
-
-				bcpy.applyMove(m, opponent);
-				int	score = minimax(bcpy, player, opponent, false, depth, max_depth, INT_MIN, INT_MAX);
-
-				_evaluated_moves.insert(std::make_pair(posToHash(m.getPosition()), MoveScore{score, m}));
-
-				if (score > best_score)
-				{
-					best_score = score;
-					best_move = m;
-				}
-			}
-
-			_stats.time = _time.get();
-			_final_move = best_move;
-			return (best_move);
-		}
+		Move	bestMove(const Board& b, Piece player, int max_depth);
 
 		const Move	&getFinalMove() {return (_final_move);}
 		const std::unordered_map<u64, MoveScore>&	getEvaluatedMoves() {return (_evaluated_moves);}
 		const Stats&	getStats() {return (_stats);}
+		void			orderMoves(Board& board, std::vector<Move>& moves, Piece ai, Piece toMove, bool useHeuristic);
+		int				alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, int beta);
 	private:
 		std::unordered_map<u64, MoveScore>	_evaluated_moves;
 		Move								_final_move;

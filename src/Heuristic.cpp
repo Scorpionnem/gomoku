@@ -3,7 +3,6 @@
 
 #define WIN_WEIGHT 200000
 
-#include <iostream>
 #include <cmath>
 
 static int evalPattern(int length, int openEnds)
@@ -86,13 +85,9 @@ static int alignmentScore(const Board& board, Piece player)
 static int playerScore(const Board& board, Piece player)
 {
     int score = 0;
-    Move last = board.getLastMove();
-
-    score += (last.getType() == CAPTURE && last.getPiece() == player) * 20000;
     score += std::ceil((std::exp(board.getCaptureCount(player)) - 1) * 1356.73);
     score += alignmentScore(board, player);
     score += std::ceil((std::exp(board.countCaptureThreats(player)) - 1) * 1356.73) / 2;
-	score += board.isWin(player) * WIN_WEIGHT;
     return score;
 }
 

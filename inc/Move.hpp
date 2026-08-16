@@ -34,10 +34,9 @@ class Move {
         MoveType                _type = PLACEMENT;
         std::vector<Position>   _removedPositions = {};
 
-        bool                    countPattern(const Board& board, Position position, Position direction, Piece player, const std::vector<int>& pattern) const;
-        bool                    isDoubleThree(Board& board, const Move& m, Piece player) const;
-        bool                    isFreeThree(const Board& board, Position position, Position direction, Piece player) const;
-        std::vector<Move>       getNearbyMoves(const Board& board, Piece player) const;
+        static bool                    countPattern(const Board& board, Position position, Position direction, Piece player, const std::vector<int>& pattern);
+        static bool                    isDoubleThree(Board& board, const Move& m, Piece player);
+        static bool                    isFreeThree(const Board& board, Position position, Position direction, Piece player);
 
     public:
         Move() {};
@@ -55,7 +54,8 @@ class Move {
         void                    setRemovedPositions(const std::vector<Position>& removedPositions) { _removedPositions = removedPositions; }
 
         std::vector<Move>       getIllegalMoves(Board& board, Piece player) const;
-        std::vector<Move>       getLegalMoves(Board& board, Piece player) const;
+        static std::vector<Move>       getLegalMoves(Board& board, Piece player);
+		static std::vector<Move> getNearbyMoves(const Board& board, Piece player);
         static bool             isIllegalMove(const Board& board, const Move& m);
     };
 

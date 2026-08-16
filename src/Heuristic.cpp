@@ -21,6 +21,24 @@ static int evalPattern(int length, int openEnds)
     return (0);
 }
 
+static bool isVulnerable(const Board& board, Position pos, Piece player)
+{
+    Piece opponent = Game::opponent(player);
+
+    for (auto& d : DIRS)
+    {
+        Position mate = {pos.x + d[0], pos.y + d[1]};
+        Position behind = {pos.x - d[0], pos.y - d[1]};
+        Position ahead = {pos.x + 2 * d[0], pos.y + 2 * d[1]};
+
+        if (board.isOutOfBounds(mate) || board.isOutOfBounds(behind) || board.isOutOfBounds(ahead))
+            continue;
+        if (board.getPiece(mate) == player && board.getPiece(behind) == opponent && board.getPiece(ahead) == EMPTY)
+            return true;
+    }
+    return false;
+}
+
 static int alignmentScore(const Board& board, Piece player)
 {
     int score = 0;
@@ -43,7 +61,22 @@ static int alignmentScore(const Board& board, Piece player)
                 int length = 1 + board.countRay(pos, dir, player, BOARD_SIZE);
                 Position front = {pos.x + length * dir.x, pos.y + length * dir.y};
                 int openEnds = board.isEmpty(back) + board.isEmpty(front);
-                score += evalPattern(length, openEnds);
+
+                int patternScore = evalPattern(length, openEnds);
+                if (patternScore > 0)
+                {
+                    Position cur = pos;
+                    for (int step = 0; step < length; ++step)
+                    {
+                        if (isVulnerable(board, cur, player))
+                        {
+                            patternScore /= 4;
+                            break;
+                        }
+                        cur = {cur.x + dir.x, cur.y + dir.y};
+                    }
+                }
+                score += patternScore;
             }
         }
     }
@@ -53,7 +86,9 @@ static int alignmentScore(const Board& board, Piece player)
 static int playerScore(const Board& board, Piece player)
 {
     int score = 0;
-	score += (board.getLastMove().getType() == CAPTURE) * 200000;
+    Move last = board.getLastMove();
+
+    score += (last.getType() == CAPTURE && last.getPiece() == player) * 20000;
     score += std::ceil((std::exp(board.getCaptureCount(player)) - 1) * 1356.73);
     score += alignmentScore(board, player);
     score += std::ceil((std::exp(board.countCaptureThreats(player)) - 1) * 1356.73) / 2;

@@ -10,7 +10,7 @@ bool Move::isIllegalMove(const Board& board, const Move& m) {
     return moveInstance.isDoubleThree(tmp, m, m.getPiece());
 }
 
-std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) const {
+std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) {
     std::vector<Move> moves;
     bool visited[BOARD_SIZE][BOARD_SIZE] = {};
 
@@ -41,7 +41,7 @@ std::vector<Move> Move::getIllegalMoves(Board& board, Piece player) const {
     return illegal;
 }
 
-std::vector<Move> Move::getLegalMoves(Board& board, Piece player) const {
+std::vector<Move> Move::getLegalMoves(Board& board, Piece player) {
     std::vector<Move> nearby = getNearbyMoves(board, player);
     if (nearby.empty()) return {{{BOARD_SIZE / 2, BOARD_SIZE / 2}, player}};
 
@@ -56,7 +56,7 @@ bool Move::countPattern(
     Position direction,
     Piece player,
     const std::vector<int>& pattern
-) const{
+) {
     int len = pattern.size();
 
     for (int offset = 0; offset < len; ++offset) {
@@ -97,7 +97,7 @@ bool Move::countPattern(
     return false;     
 };
 
-bool Move::isFreeThree(const Board& board, Position position, Position direction, Piece player) const
+bool Move::isFreeThree(const Board& board, Position position, Position direction, Piece player)
 {
     if (countPattern(board, position, direction, player, {0, 1, 1, 1, 0}))
         return true;
@@ -109,7 +109,7 @@ bool Move::isFreeThree(const Board& board, Position position, Position direction
     return false;
 }
 
-bool Move::isDoubleThree(Board& board, const Move& m, Piece player) const
+bool Move::isDoubleThree(Board& board, const Move& m, Piece player)
 {
     board.play(m);
     int freeThreeCount = 0;

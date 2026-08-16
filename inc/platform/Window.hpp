@@ -37,8 +37,9 @@ class Window
 		u32     width() const;
 		u32     height() const;
 
-		void	drawPiece(int x, int y, bool white);
+		void	drawPiece(int x, int y, unsigned char r, unsigned char g, unsigned char b);
 		void	drawBoard();
+		void	drawMewen();
 
 		void	drawText(const std::string &s, int x, int y, unsigned char r = 255, unsigned char g = 255, unsigned char b = 255)
 		{
@@ -97,6 +98,7 @@ class Window
 		SDL_Texture		*black_tex = nullptr;
 		SDL_Texture		*white_tex = nullptr;
 		SDL_Texture		*hotbar_tex = nullptr;
+		SDL_Texture		*mewen_tex = nullptr;
 
 		TTF_Font		*font = nullptr;
 

@@ -12,11 +12,19 @@
 # define BROWN_COLOR Color{230, 167, 80}
 # define BEIGE_COLOR Color{204, 141, 53}
 # define DARK_BROWN_COLOR Color{140, 90, 20}
+# define BLUE_COLOR Color{60, 120, 220}
+# define YELLOW_COLOR Color{230, 200, 60}
+# define WHITE_COLOR Color{255, 255, 255}
 
 struct Color {
 	int r = 0;
 	int g = 0;
 	int b = 0;
+};
+
+struct PieceStyle {
+	const char	*name;
+	Color		color;
 };
 
 class	Gomoku
@@ -31,6 +39,22 @@ class	Gomoku
 		#define WINDOW_SIZE_X (TILES * TILE_SIZE + TILE_SIZE * 12)
 		#define WINDOW_SIZE_Y (TILES * TILE_SIZE + TILE_SIZE * 3)
 		#define WINDOW_TITLE "Gomoku"
+		#define NUM_PIECE_COLORS 6
+		static constexpr PieceStyle PIECE_STYLES[NUM_PIECE_COLORS] = {
+			{"Black", BLACK_COLOR},
+			{"White", WHITE_COLOR},
+			{"Red", RED_COLOR},
+			{"Blue", BLUE_COLOR},
+			{"Green", GREEN_COLOR},
+			{"Yellow", YELLOW_COLOR},
+		};
+		#define SPLASH_TEXTS_COUNT 4
+		static constexpr const char	*splash_texts[SPLASH_TEXTS_COUNT] = {
+			"Moku est un village de la commune de Pala du Comte de Jogeva en Estonie",
+			"Gomoku more like idk something funny?",
+			"Why are you reading this lil bro?",
+			"Je sais pas quoi mettre en plus ngl",
+		};
 		enum PlayerType
 		{
 			AIPLAYER,
@@ -48,6 +72,10 @@ class	Gomoku
 			GAME_DONE,
 		};
 	public:
+		Gomoku() {
+			srand(std::time(NULL));
+			splash_text = rand() % SPLASH_TEXTS_COUNT;
+		}
 		void	run()
 		{
 			init();
@@ -79,8 +107,10 @@ class	Gomoku
 
 		void	drawPieces();
 		void	drawCursor();
-		void	drawAIInfo(AI &ai, bool debug);
+		void	drawAIInfo(AI &ai, bool debug, bool hint);
 		void	drawPlayerPanel(AI &ai, PlayerTurn player, int panel_x);
+		void	drawGamePiece(int x, int y, int color_idx);
+		void	drawColorPicker(SDL_Rect r, Color c, bool selected);
 		void	drawTile(Position position, Color color);
 		void	drawPiece(Position position, Color color);
 		void	renderOutline(Position position, Color color);
@@ -96,10 +126,23 @@ class	Gomoku
 
 		PlayerType	player1_type = AIPLAYER;
 		PlayerType	player2_type = HUMANPLAYER;
-		int			depth = 10;
 
 		PlayerType	menu_p1_type = HUMANPLAYER;
 		PlayerType	menu_p2_type = AIPLAYER;
+
+		bool	player1_debug = false;
+		bool	player2_debug = false;
+		bool	player1_hint = true;
+		bool	player2_hint = true;
+		int	player1_color_idx = 0;
+		int	player2_color_idx = 1;
+
+		bool	menu_p1_debug = false;
+		bool	menu_p2_debug = false;
+		bool	menu_p1_hint = true;
+		bool	menu_p2_hint = true;
+		int	menu_p1_color_idx = 0;
+		int	menu_p2_color_idx = 1;
 
 		PlayerTurn	winner = PLAYER1;
 
@@ -118,4 +161,6 @@ class	Gomoku
 		bool		mouse_clicked = false;
 
 		bool	compute_ai_move = false;
+
+		int	splash_text = 0;
 };

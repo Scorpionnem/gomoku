@@ -71,11 +71,26 @@ void    Window::open(const char *title, u32 width, u32 height)
 	hotbar_tex = SDL_CreateTextureFromSurface(_renderer, surface);
 	if (!hotbar_tex)
 		throw std::runtime_error("createtexture");
+
+	srand(std::time(NULL));
+
+	surface = SDL_LoadBMP((rand() % 2 ? "assets/mewen.bmp" : "assets/sacha.bmp"));
+	if (!surface)
+		throw std::runtime_error("loadbmp");
+
+	mewen_tex = SDL_CreateTextureFromSurface(_renderer, surface);
+	if (!mewen_tex)
+		throw std::runtime_error("createtexture");
 	SDL_FreeSurface(surface);
 }
 
 void    Window::close()
 {
+	if (mewen_tex)
+	{
+		SDL_DestroyTexture(mewen_tex);
+		mewen_tex = nullptr;
+	}
 	if (board_tex)
 	{
 		SDL_DestroyTexture(board_tex);
@@ -209,7 +224,7 @@ void    Window::_createWindow(const char *title, u32 width, u32 height)
 	}
 }
 
-void	Window::drawPiece(int x, int y, bool white)
+void	Window::drawPiece(int x, int y, unsigned char r, unsigned char g, unsigned char b)
 {
 	SDL_Rect	rect = {
 		.x = x,
@@ -218,7 +233,9 @@ void	Window::drawPiece(int x, int y, bool white)
 		.h = TILE_SIZE,
 	};
 
-	SDL_RenderCopy(_renderer, white ? white_tex : black_tex, NULL, &rect);
+	SDL_SetTextureColorMod(white_tex, r, g, b);
+	SDL_RenderCopy(_renderer, white_tex, NULL, &rect);
+	SDL_SetTextureColorMod(white_tex, 255, 255, 255);
 }
 
 void	Window::drawBoard()
@@ -240,4 +257,16 @@ void	Window::drawBoard()
 	};
 
 	SDL_RenderCopy(_renderer, hotbar_tex, NULL, &rect);
+}
+
+void	Window::drawMewen()
+{
+	SDL_Rect	rect = {
+		.x = 0,
+		.y = 0,
+		.w = WINDOW_SIZE_X,
+		.h = WINDOW_SIZE_Y,
+	};
+
+	SDL_RenderCopy(_renderer, mewen_tex, NULL, &rect);
 }

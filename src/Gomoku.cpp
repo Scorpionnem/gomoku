@@ -81,23 +81,76 @@ void	Gomoku::updateGameDone(Input &input)
 	}
 }
 
+struct	PlayerColumnRects
+{
+	SDL_Rect	human;
+	SDL_Rect	ai;
+	SDL_Rect	debug;
+	SDL_Rect	hint;
+	SDL_Rect	colors[NUM_PIECE_COLORS];
+};
+
+PlayerColumnRects	getPlayerColumnRects(int col_x)
+{
+	PlayerColumnRects	r;
+	int	button_w = 160;
+	int	button_h = 40;
+	int	gap = 8;
+
+	r.human = {col_x, 240, button_w, button_h};
+	r.ai = {col_x, 240 + (button_h + gap), button_w, button_h};
+	r.debug = {col_x, 240 + 2 * (button_h + gap), button_w, button_h};
+	r.hint = {col_x, 240 + 3 * (button_h + gap), button_w, button_h};
+
+	int	picker = 36;
+	int	picker_gap = 6;
+	int	row1_y = 240 + 4 * (button_h + gap);
+	int	row2_y = row1_y + picker + picker_gap;
+	int	pad = (button_w - (picker * 3 + picker_gap * 2)) / 2;
+
+	for (int i = 0; i < 3; i++)
+		r.colors[i] = {col_x + pad + i * (picker + picker_gap), row1_y, picker, picker};
+	for (int i = 0; i < 3; i++)
+		r.colors[3 + i] = {col_x + pad + i * (picker + picker_gap), row2_y, picker, picker};
+
+	return (r);
+}
+
+static SDL_Rect	getStartButtonRect()
+{
+	const int	w = 220;
+	const int	h = 60;
+
+	return (SDL_Rect{WINDOW_SIZE_X / 2 - w / 2, 580, w, h});
+}
+
 void	Gomoku::renderMenu()
 {
-	drawCenteredText("Moku est un village de la commune de Pala du Comte de Jogeva en Estonie", WINDOW_SIZE_X / 2, 80);
+	win.drawMewen();
+	
+	drawCenteredText(splash_texts[splash_text], WINDOW_SIZE_X / 2, 80);
 
-	SDL_Rect	p1_human = {140, 260, 160, 50};
-	SDL_Rect	p1_ai = {140, 260 + 50 + 20, 160, 50};
-	SDL_Rect	p2_human = {WINDOW_SIZE_X - 140 - 160, 260, 160, 50};
-	SDL_Rect	p2_ai = {WINDOW_SIZE_X - 140 - 160, 260 + 50 + 20, 160, 50};
-	SDL_Rect	start = {WINDOW_SIZE_X / 2 - 220 / 2, 480, 220, 60};
+	PlayerColumnRects	col1 = getPlayerColumnRects(140);
+	PlayerColumnRects	col2 = getPlayerColumnRects(WINDOW_SIZE_X - 140 - 160);
+	SDL_Rect		start = getStartButtonRect();
 
-	drawCenteredText("Player 1", p1_human.x + p1_human.w / 2, p1_human.y - 40);
-	drawButton(p1_human, "Human", menu_p1_type == HUMANPLAYER);
-	drawButton(p1_ai, "AI", menu_p1_type == AIPLAYER);
+	drawCenteredText("Player 1", col1.human.x + col1.human.w / 2, col1.human.y - 40);
+	drawButton(col1.human, "Human", menu_p1_type == HUMANPLAYER);
+	drawButton(col1.ai, "AI", menu_p1_type == AIPLAYER);
+	drawButton(col1.debug, menu_p1_debug ? "Debug: ON" : "Debug: OFF", menu_p1_debug);
+	drawButton(col1.hint, menu_p1_hint ? "Hint: ON" : "Hint: OFF", menu_p1_hint);
+	for (int i = 0; i < NUM_PIECE_COLORS; i++)
+		drawColorPicker(col1.colors[i], PIECE_STYLES[i].color, menu_p1_color_idx == i);
+	drawCenteredText(PIECE_STYLES[menu_p1_color_idx].name, col1.human.x + col1.human.w / 2, col1.colors[3].y + col1.colors[3].h + 8);
 
-	drawCenteredText("Player 2", p2_human.x + p2_human.w / 2, p2_human.y - 40);
-	drawButton(p2_human, "Human", menu_p2_type == HUMANPLAYER);
-	drawButton(p2_ai, "AI", menu_p2_type == AIPLAYER);
+	drawCenteredText("Player 2", col2.human.x + col2.human.w / 2, col2.human.y - 40);
+	drawButton(col2.human, "Human", menu_p2_type == HUMANPLAYER);
+	drawButton(col2.ai, "AI", menu_p2_type == AIPLAYER);
+	drawButton(col2.debug, menu_p2_debug ? "Debug: ON" : "Debug: OFF", menu_p2_debug);
+	drawButton(col2.hint, menu_p2_hint ? "Hint: ON" : "Hint: OFF", menu_p2_hint);
+	for (int i = 0; i < NUM_PIECE_COLORS; i++)
+		drawColorPicker(col2.colors[i], PIECE_STYLES[i].color, menu_p2_color_idx == i);
+	drawCenteredText(PIECE_STYLES[menu_p2_color_idx].name, col2.human.x + col2.human.w / 2, col2.colors[3].y + col2.colors[3].h + 8);
 
 	drawButton(start, "Start", false);
 }
@@ -110,26 +163,48 @@ void	Gomoku::updateMenu(Input &input)
 	if (!mouse_clicked)
 		return ;
 
-	SDL_Rect	p1_human = {140, 260, 160, 50};
-	SDL_Rect	p1_ai = {140, 260 + 50 + 20, 160, 50};
-	SDL_Rect	p2_human = {WINDOW_SIZE_X - 140 - 160, 260, 160, 50};
-	SDL_Rect	p2_ai = {WINDOW_SIZE_X - 140 - 160, 260 + 50 + 20, 160, 50};
-	SDL_Rect	start = {WINDOW_SIZE_X / 2 - 220 / 2, 480, 220, 60};
+	PlayerColumnRects	col1 = getPlayerColumnRects(140);
+	PlayerColumnRects	col2 = getPlayerColumnRects(WINDOW_SIZE_X - 140 - 160);
+	SDL_Rect		start = getStartButtonRect();
 
-	if (buttonClicked(p1_human))
+	if (buttonClicked(col1.human))
 		menu_p1_type = HUMANPLAYER;
-	else if (buttonClicked(p1_ai))
+	else if (buttonClicked(col1.ai))
 		menu_p1_type = AIPLAYER;
-	else if (buttonClicked(p2_human))
+	else if (buttonClicked(col1.debug))
+		menu_p1_debug = !menu_p1_debug;
+	else if (buttonClicked(col1.hint))
+		menu_p1_hint = !menu_p1_hint;
+	else if (buttonClicked(col2.human))
 		menu_p2_type = HUMANPLAYER;
-	else if (buttonClicked(p2_ai))
+	else if (buttonClicked(col2.ai))
 		menu_p2_type = AIPLAYER;
+	else if (buttonClicked(col2.debug))
+		menu_p2_debug = !menu_p2_debug;
+	else if (buttonClicked(col2.hint))
+		menu_p2_hint = !menu_p2_hint;
 	else if (buttonClicked(start))
 	{
 		player1_type = menu_p1_type;
 		player2_type = menu_p2_type;
+		player1_debug = menu_p1_debug;
+		player2_debug = menu_p2_debug;
+		player1_hint = menu_p1_hint;
+		player2_hint = menu_p2_hint;
+		player1_color_idx = menu_p1_color_idx;
+		player2_color_idx = menu_p2_color_idx;
 		resetGame();
 		state = State::GAME;
+	}
+	else
+	{
+		for (int i = 0; i < NUM_PIECE_COLORS; i++)
+		{
+			if (buttonClicked(col1.colors[i]) && menu_p2_color_idx != i)
+				menu_p1_color_idx = i;
+			else if (buttonClicked(col2.colors[i]) && menu_p1_color_idx != i)
+				menu_p2_color_idx = i;
+		}
 	}
 }
 
@@ -138,7 +213,9 @@ void	Gomoku::renderGame()
 	win.drawBoard();
 
 	AI	&active_ai = player_turn == PLAYER1 ? ai_1 : ai_2;
-	drawAIInfo(active_ai, true);
+	bool	active_debug = player_turn == PLAYER1 ? player1_debug : player2_debug;
+	bool	active_hint = player_turn == PLAYER1 ? player1_hint : player2_hint;
+	drawAIInfo(active_ai, active_debug, active_hint);
 
 	drawPieces();
 
@@ -187,9 +264,9 @@ void	Gomoku::drawPieces()
 		{
 			Position position = {x, y};
 			if (game.getBoard().getPiece(position) == Piece::BLACK)
-				win.drawPiece(position.x * TILE_SIZE + WIN_LEFT_OFFSET_PIXELS, position.y * TILE_SIZE, 0);
+				drawGamePiece(position.x * TILE_SIZE + WIN_LEFT_OFFSET_PIXELS, position.y * TILE_SIZE, player1_color_idx);
 			else if (game.getBoard().getPiece(position) == Piece::WHITE)
-				win.drawPiece(position.x * TILE_SIZE + WIN_LEFT_OFFSET_PIXELS, position.y * TILE_SIZE, 1);
+				drawGamePiece(position.x * TILE_SIZE + WIN_LEFT_OFFSET_PIXELS, position.y * TILE_SIZE, player2_color_idx);
 		}
 
 	auto illegalMoves = Move::getIllegalMoves(
@@ -233,7 +310,7 @@ void		Gomoku::getNextMove(Input &input)
 	{
 		if (compute_ai_move == false)
 		{
-			move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 1);
+			move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
 			compute_ai_move = true;
 		}
 
@@ -260,7 +337,7 @@ void		Gomoku::getNextMove(Input &input)
 	}
 	else if (player_type == AIPLAYER)
 	{
-		move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 1);
+		move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
 		play_frame = true;
 	}
 
@@ -280,7 +357,7 @@ void	Gomoku::playMove(Move move)
     game.setCurrentPlayer(game.getOpponent());
 }
 
-void	Gomoku::drawAIInfo(AI &ai, bool debug)
+void	Gomoku::drawAIInfo(AI &ai, bool debug, bool hint)
 {
 	auto	predicted_moves = ai.getEvaluatedMoves();
 
@@ -301,8 +378,11 @@ void	Gomoku::drawAIInfo(AI &ai, bool debug)
 		}
 	}
 
-	Position pos = ai.getFinalMove().getPosition();
-	renderOutline({pos.x + WIN_LEFT_OFFSET, pos.y}, {0, 0, 255});
+	if (hint)
+	{
+		Position pos = ai.getFinalMove().getPosition();
+		renderOutline({pos.x + WIN_LEFT_OFFSET, pos.y}, {0, 0, 255});
+	}
 
 	if (debug)
 	{
@@ -315,7 +395,7 @@ void	Gomoku::drawAIInfo(AI &ai, bool debug)
 
 			for (auto &m : predicted_moves)
 			{
-				pos = m.second.m.getPosition();
+				Position pos = m.second.m.getPosition();
 				if (pos == board_mouse_pos)
 					win.drawText("score: " + std::to_string(m.second.score), mouse_pos.x, mouse_pos.y - 20);
 			}
@@ -326,13 +406,13 @@ void	Gomoku::drawAIInfo(AI &ai, bool debug)
 void	Gomoku::drawPlayerPanel(AI &ai, PlayerTurn player, int panel_x)
 {
 	bool	is_turn = (player_turn == player);
-	int	piece_index = (player == PLAYER1) ? 0 : 1;
+	int	color_idx = (player == PLAYER1) ? player1_color_idx : player2_color_idx;
 	int	indicator_x = panel_x + (WIN_LEFT_OFFSET_PIXELS - TILE_SIZE) / 2;
 	int	indicator_y = 16;
 
 	Piece topiece = player == PlayerTurn::PLAYER1 ? BLACK : WHITE;
 
-	win.drawPiece(indicator_x, indicator_y, piece_index);
+	drawGamePiece(indicator_x, indicator_y, color_idx);
 	if (is_turn)
 		win.drawRect(indicator_x, indicator_y, TILE_SIZE, TILE_SIZE, 0, 255, 0);
 
@@ -347,6 +427,21 @@ void	Gomoku::drawPlayerPanel(AI &ai, PlayerTurn player, int panel_x)
 	win.drawText("stop: " + std::to_string(stats.stopped_nodes), panel_x + 10, y + 24 * 3);
 	win.drawText("maxdn: " + std::to_string(stats.max_depth_nodes), panel_x + 10, y + 24 * 4);
 	win.drawText("capture: " + std::to_string(game.getBoard().getCaptureCount(topiece)), panel_x + 10, y + 24 * 5);
+}
+
+void	Gomoku::drawGamePiece(int x, int y, int color_idx)
+{
+	Color c = PIECE_STYLES[color_idx].color;
+	win.drawPiece(x, y, c.r, c.g, c.b);
+}
+
+void	Gomoku::drawColorPicker(SDL_Rect r, Color c, bool selected)
+{
+	win.drawFillRect(r.x, r.y, r.w, r.h, c.r, c.g, c.b);
+	if (selected)
+		win.drawRect(r.x - 2, r.y - 2, r.w + 4, r.h + 4, 0, 255, 0);
+	else
+		win.drawRect(r.x, r.y, r.w, r.h, 255, 255, 255);
 }
 
 void	Gomoku::resetGame()

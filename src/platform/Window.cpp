@@ -224,16 +224,16 @@ void	Window::drawPiece(int x, int y, bool white)
 void	Window::drawBoard()
 {
 	SDL_Rect	rect = {
-		.x = 0,
+		.x = WIN_LEFT_OFFSET_PIXELS,
 		.y = 0,
 		.w = WIN_BOARD_SIZE,
 		.h = WIN_BOARD_SIZE,
 	};
 
 	SDL_RenderCopy(_renderer, board_tex, NULL, &rect);
-	
+
 	rect = {
-		.x = 0,
+		.x = WIN_LEFT_OFFSET_PIXELS,
 		.y = WIN_BOARD_SIZE,
 		.w = WIN_BOARD_SIZE,
 		.h = 3 * TILE_SIZE,

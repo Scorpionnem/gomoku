@@ -29,7 +29,10 @@ int main(int ac, char **av)
 
 	try
 	{
-		gmk.run(p1_type, p2_type);
+		if (ac == 3)
+			gmk.run(p1_type, p2_type);
+		else
+			gmk.run();
 	} catch (const std::exception &e)
 	{
 		std::cerr << e.what() << std::endl;

@@ -110,7 +110,6 @@ bool Move::isFreeThree(const Board& board, Position position, Position direction
     return false;
 }
 
-// Nombre de pierres `player` a distance <=3 du coup le long d'un axe (2 sens).
 static int axisAllyCount(const Board& board, Position p, Position d, Piece player)
 {
     int count = 0;
@@ -124,9 +123,6 @@ static int axisAllyCount(const Board& board, Position p, Position d, Piece playe
     return count;
 }
 
-// Condition necessaire (jamais de faux negatif) : un double-three impose au
-// moins 2 axes ayant chacun >=2 allies proches. Filtre bon marche qui evite la
-// detection complete sur l'immense majorite des coups.
 static bool mightBeDoubleThree(const Board& board, Position p, Piece player)
 {
     int axes = 0;

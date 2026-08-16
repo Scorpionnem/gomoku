@@ -93,33 +93,6 @@ class Board {
         static u64  ZOB_SIDE;
         u64         hash() const { return _hash; }
 
-        void printBoard() {
-            std::cout << "   ";
-            for (int j = 0; j < BOARD_SIZE; j++)
-                std::cout << (j % 10) << " ";
-            std::cout << "\n";
-            for (int i = 0; i < BOARD_SIZE; i++) {
-                std::cout << (i < 10 ? " " : "") << i << " ";
-                for (int j = 0; j < BOARD_SIZE; j++) {
-                    switch (_board[j + BOARD_SIZE * i]) {
-                        case BLACK:
-                            std::cout << "\033[31;1m●\033[0m" << " ";
-                            break;
-                        case WHITE:
-                            std::cout << "\033[34;1m●\033[0m" << " ";
-                            break;
-                        case ILLEGAL:
-                            std::cout << "\033[32;1m▴\033[0m" << " ";
-                            break;
-                        default:
-                            std::cout << "\033[90m·\033[0m" << " ";
-                            break;
-                    }
-                }
-                std::cout << "\n";
-            }
-        }
-
     };
 
 #endif

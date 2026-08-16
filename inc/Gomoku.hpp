@@ -1,7 +1,6 @@
 #pragma once
 
 # include "platform/Window.hpp"
-# include "Game.hpp"
 # include "Move.hpp"
 # include "AI.hpp"
 
@@ -60,11 +59,6 @@ class	Gomoku
 			AIPLAYER,
 			HUMANPLAYER,
 		};
-		enum PlayerTurn
-		{
-			PLAYER1,
-			PLAYER2,
-		};
 		enum State
 		{
 			MENU,
@@ -89,6 +83,11 @@ class	Gomoku
 			init();
 			loop();
 		}
+		Board&			getBoard() { return board; }
+
+		Piece	getCurrentPlayer() { return player_turn; }
+		static Piece	getOpponent(Piece player) { return player == BLACK ? WHITE : BLACK; }
+		void	setCurrentPlayer(Piece player) { player_turn = player; }
 	private:
 		void	init();
 		void	loop();
@@ -108,7 +107,7 @@ class	Gomoku
 		void	drawPieces();
 		void	drawCursor();
 		void	drawAIInfo(AI &ai, bool debug, bool hint);
-		void	drawPlayerPanel(AI &ai, PlayerTurn player, int panel_x);
+		void	drawPlayerPanel(AI &ai, Piece player, int panel_x);
 		void	drawGamePiece(int x, int y, int color_idx);
 		void	drawColorPicker(SDL_Rect r, Color c, bool selected);
 		void	drawTile(Position position, Color color);
@@ -125,7 +124,7 @@ class	Gomoku
 		std::vector<float>	p1_times;
 		std::vector<float>	p2_times;
 
-		PlayerTurn	player_turn = PLAYER1;
+		Piece	player_turn = BLACK;
 
 		PlayerType	player1_type = AIPLAYER;
 		PlayerType	player2_type = HUMANPLAYER;
@@ -147,12 +146,12 @@ class	Gomoku
 		int	menu_p1_color_idx = 0;
 		int	menu_p2_color_idx = 1;
 
-		PlayerTurn	winner = PLAYER1;
+		Piece	winner = BLACK;
 
 		AI		ai_1;
 		AI		ai_2;
 
-		Game	game;
+		Board	board;
 
 		Window	win;
 		bool	running = false;

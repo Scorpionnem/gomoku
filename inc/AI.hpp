@@ -4,7 +4,6 @@
 # include "Board.hpp"
 # include "Move.hpp"
 # include "Heuristic.hpp"
-# include "Game.hpp"
 # include "Chrono.hpp"
 # include <climits>
 # include <unordered_map>
@@ -16,16 +15,6 @@ enum class Bound { EXACT, LOWER, UPPER };
 inline constexpr u64	posToHash(Position p)
 {
 	return (static_cast<u64>(p.x) << 32 | static_cast<u64>(p.y));
-}
-
-inline constexpr u32	hashToPosX(u64 h)
-{
-	return (h >> 32);
-}
-
-inline constexpr u32	hashToPosY(u64 h)
-{
-	return (h & 0x00000000ffffffff);
 }
 
 class AI

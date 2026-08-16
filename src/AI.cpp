@@ -2,7 +2,7 @@
 #include "Heuristic.hpp"
 #include "Move.hpp"
 #include "Chrono.hpp"
-#include "Game.hpp"
+#include "Gomoku.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -44,7 +44,7 @@ int AI::cheapMoveScore(const Board& board, const Move& move, Piece opponent)
 
 void AI::orderMoves(Board& board, std::vector<Move>& moves, Piece ai, Piece toMove, bool useHeuristic)
 {
-    const Piece opp = Game::opponent(toMove);
+    const Piece opp = Gomoku::getOpponent(toMove);
     std::vector<std::pair<int, Move>> scored;
     scored.reserve(moves.size());
 
@@ -120,7 +120,7 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
 	_stats.explored_nodes++;
 	_stats.max_depth = std::max(_stats.max_depth, depth);
 
-    const Piece opp = Game::opponent(toMove);
+    const Piece opp = Gomoku::getOpponent(toMove);
     const bool maximizing = (toMove == ai);
     const int height = _stats.depth_limit - depth;
     const u64 key = board.hash() ^ (toMove == BLACK ? 0 : Board::ZOB_SIDE);
@@ -249,7 +249,7 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
     if (moves.empty())
         return {{BOARD_SIZE / 2, BOARD_SIZE / 2}, ai};
 
-    const Piece opp = Game::opponent(ai);
+    const Piece opp = Gomoku::getOpponent(ai);
     orderMoves(search, moves, ai, ai, true);
 
     Move best = moves.front();

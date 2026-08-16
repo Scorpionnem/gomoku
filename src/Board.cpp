@@ -1,5 +1,5 @@
 #include "Board.hpp"
-#include "Game.hpp"
+#include "Gomoku.hpp"
 #include <random>
 #include <cassert>
 
@@ -81,7 +81,7 @@ bool Board::isInStones(const std::vector<Position>& stones, Position pos) const 
 }
 
 bool Board::canOpponentBreakFive(Position loc, Piece player) const {
-    const Piece opp = Game::opponent(player);
+    const Piece opp = Gomoku::getOpponent(player);
     const auto stones = getWinningStones(loc, player);
 
     for (const auto& stone : stones) {
@@ -172,7 +172,7 @@ void Board::undo() {
 
     if (last_move.getType() == CAPTURE) {
         for (auto& pos : last_move.getRemovedPositions())
-            setPiece(pos, Game::opponent(last_move.getPiece()));
+            setPiece(pos, Gomoku::getOpponent(last_move.getPiece()));
         incrementCaptureCount(last_move.getPiece(), -static_cast<int>(last_move.getRemovedPositions().size() / 2));
     }
 
@@ -198,7 +198,7 @@ CaptureInfo Board::findCaptures(const Move& m, Piece opponent) const {
 }
 
 int Board::countCaptureThreats(Piece player) const {
-    const Piece opponent = Game::opponent(player);
+    const Piece opponent = Gomoku::getOpponent(player);
     int threats = 0;
 
     for (int x = 0; x < BOARD_SIZE; ++x) {

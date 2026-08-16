@@ -1,5 +1,5 @@
 #include "Heuristic.hpp"
-#include "Game.hpp"
+#include "Gomoku.hpp"
 
 #define WIN_WEIGHT 200000
 
@@ -22,7 +22,7 @@ static int evalPattern(int length, int openEnds)
 
 static bool isVulnerable(const Board& board, Position pos, Piece player)
 {
-    Piece opponent = Game::opponent(player);
+    Piece opponent = Gomoku::getOpponent(player);
 
     for (auto& d : DIRS)
     {
@@ -93,5 +93,5 @@ static int playerScore(const Board& board, Piece player)
 
 int Heuristic::evaluate(const Board& board, Piece player)
 {
-    return playerScore(board, player) - playerScore(board, Game::opponent(player));
+    return playerScore(board, player) - playerScore(board, Gomoku::getOpponent(player));
 }

@@ -26,7 +26,9 @@ class	Gomoku
 		#define TILE_SIZE 32
 		#define PIECE_SIZE 26
 		#define WIN_BOARD_SIZE (TILES * TILE_SIZE)
-		#define WINDOW_SIZE_X (TILES * TILE_SIZE)
+		#define WIN_LEFT_OFFSET_PIXELS (6 * TILE_SIZE)
+		#define WIN_LEFT_OFFSET (6)
+		#define WINDOW_SIZE_X (TILES * TILE_SIZE + TILE_SIZE * 12)
 		#define WINDOW_SIZE_Y (TILES * TILE_SIZE + TILE_SIZE * 3)
 		#define WINDOW_TITLE "Gomoku"
 		enum PlayerType
@@ -43,13 +45,19 @@ class	Gomoku
 		{
 			MENU,
 			GAME,
+			GAME_DONE,
 		};
 	public:
-		void	run(PlayerType p1_type = HUMANPLAYER, PlayerType p2_type = AIPLAYER, int depth = 10)
+		void	run()
 		{
+			init();
+			loop();
+		}
+		void	run(PlayerType p1_type, PlayerType p2_type)
+		{
+			state = State::GAME;
 			player1_type = p1_type;
 			player2_type = p2_type;
-			this->depth = depth;
 			init();
 			loop();
 		}
@@ -57,22 +65,43 @@ class	Gomoku
 		void	init();
 		void	loop();
 
+		void	updateMenu(Input &input);
+		void	renderMenu();
+		
+		void	updateGameDone(Input &input);
+		void	renderGameDone();
+
 		void	updateGame(Input &input);
-		void	getAction(Input &input);
+		void	renderGame();
+
 		void	playMove(Move move);
+		void	getNextMove(Input &input);
 
-		void	drawAIDebug(AI &ai, Input &input);
-
+		void	drawPieces();
+		void	drawCursor();
+		void	drawAIInfo(AI &ai, bool debug);
+		void	drawPlayerPanel(AI &ai, PlayerTurn player, int panel_x);
 		void	drawTile(Position position, Color color);
 		void	drawPiece(Position position, Color color);
 		void	renderOutline(Position position, Color color);
-		void	renderBoardBackground();
+
+		void	resetGame();
+
+		bool	isInside(SDL_Rect r, int px, int py) const;
+		bool	buttonClicked(SDL_Rect r) const;
+		void	drawButton(SDL_Rect r, const std::string &label, bool selected);
+		void	drawCenteredText(const std::string &s, int cx, int y);
 	private:
 		PlayerTurn	player_turn = PLAYER1;
 
 		PlayerType	player1_type = AIPLAYER;
 		PlayerType	player2_type = HUMANPLAYER;
 		int			depth = 10;
+
+		PlayerType	menu_p1_type = HUMANPLAYER;
+		PlayerType	menu_p2_type = AIPLAYER;
+
+		PlayerTurn	winner = PLAYER1;
 
 		AI		ai_1;
 		AI		ai_2;
@@ -82,6 +111,11 @@ class	Gomoku
 		Window	win;
 		bool	running = false;
 
-		State	state = State::GAME;
+		State	state = State::MENU;
 		int		turn = 0;
+
+		Position	mouse_pos = {};
+		bool		mouse_clicked = false;
+
+		bool	compute_ai_move = false;
 };

@@ -54,6 +54,10 @@ class Window
 
 			SDL_DestroyTexture(tex);
 		}
+		void	getTextSize(const std::string &s, int &w, int &h)
+		{
+			TTF_SizeUTF8(font, s.c_str(), &w, &h);
+		}
 		void	drawFillRect(int x, int y, int width, int height, unsigned char r, unsigned char g, unsigned char b, unsigned char o = 255)
 		{
 			SDL_SetRenderDrawColor(_renderer, r, g, b, o);

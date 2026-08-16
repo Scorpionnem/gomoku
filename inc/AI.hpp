@@ -38,16 +38,19 @@ class AI
 		};
 		struct	Stats
 		{
-			double	time;
+			Stats() {
+
+			}
+			double	time = 0;
 			// max depth explored
-			int		max_depth;
+			int		max_depth = 0;
 			// depth limit
-			int		depth_limit;
+			int		depth_limit = 0;
 			// nodes that reached max_depth
-			int		max_depth_nodes;
+			int		max_depth_nodes = 0;
 			// nodes that were stopped before reaching max_depth
-			int		stopped_nodes;
-			int		explored_nodes;
+			int		stopped_nodes = 0;
+			int		explored_nodes = 0;
 		};
 
 		struct TTEntry {

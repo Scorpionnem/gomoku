@@ -7,7 +7,6 @@
 
 # include <iostream>
 # define BLACK_COLOR Color{0, 0, 0}
-# define WHITE_COLOR Color{255, 255, 255}
 # define RED_COLOR Color{255, 0, 0}
 # define GREEN_COLOR Color{0, 255, 0}
 # define BROWN_COLOR Color{230, 167, 80}
@@ -97,6 +96,7 @@ class	Gomoku
 
 		PlayerType	player1_type = AIPLAYER;
 		PlayerType	player2_type = HUMANPLAYER;
+		int			depth = 10;
 
 		PlayerType	menu_p1_type = HUMANPLAYER;
 		PlayerType	menu_p2_type = AIPLAYER;

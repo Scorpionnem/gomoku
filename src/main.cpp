@@ -10,7 +10,7 @@ int main(int ac, char **av)
 	Gomoku::PlayerType	p1_type = Gomoku::HUMANPLAYER;
 	Gomoku::PlayerType	p2_type = Gomoku::AIPLAYER;
 
-	if (ac == 3)
+	if (ac >= 3)
 	{
 		if (std::string(av[1]) == "ai")
 			p1_type = Gomoku::AIPLAYER;
@@ -26,7 +26,6 @@ int main(int ac, char **av)
 		else
 			return (1);
 	}
-
 	try
 	{
 		if (ac == 3)

@@ -122,6 +122,9 @@ class	Gomoku
 		void	drawButton(SDL_Rect r, const std::string &label, bool selected);
 		void	drawCenteredText(const std::string &s, int cx, int y);
 	private:
+		std::vector<float>	p1_times;
+		std::vector<float>	p2_times;
+
 		PlayerTurn	player_turn = PLAYER1;
 
 		PlayerType	player1_type = AIPLAYER;
@@ -163,4 +166,6 @@ class	Gomoku
 		bool	compute_ai_move = false;
 
 		int	splash_text = 0;
+
+		bool	first_place_ai_ai = false;
 };

@@ -50,6 +50,8 @@ void	Gomoku::renderGameDone()
 
 	std::string	winner_str = (winner == PLAYER1 ? "Player 1 wins!" : "Player 2 wins!");
 	drawCenteredText(winner_str, WINDOW_SIZE_X / 2, WIN_BOARD_SIZE / 2 - 60);
+	
+	drawCenteredText(std::to_string(turn) + " turns", WINDOW_SIZE_X / 2, WIN_BOARD_SIZE / 2);
 
 	SDL_Rect	play_again = {WINDOW_SIZE_X / 2 - 220 / 2, 380, 220, 60};
 	SDL_Rect	main_menu = {WINDOW_SIZE_X / 2 - 220 / 2, 460, 220, 60};
@@ -301,16 +303,29 @@ void		Gomoku::getNextMove(Input &input)
 {
 	AI&			ai = player_turn == PLAYER1 ? ai_1 : ai_2;
 	PlayerType	player_type = player_turn == PLAYER1 ? player1_type : player2_type;
+	std::vector<float>	&times = player_turn == PLAYER1 ? p1_times : p2_times;
 
 	// does the player play this frame
 	bool	play_frame = false;
 	Move	move;
 
-	if (player_type == HUMANPLAYER)
+	if (player1_type == AIPLAYER && player2_type == AIPLAYER && first_place_ai_ai == false)
+	{
+		first_place_ai_ai = true;
+
+		int	x = rand() % 19;
+		int	y = rand() % 19;
+
+		Position position = {x, y};
+		move = {position, game.getCurrentPlayer()};
+		play_frame = true;
+	}
+	else if (player_type == HUMANPLAYER)
 	{
 		if (compute_ai_move == false)
 		{
 			move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
+			times.push_back(ai.getStats().time);
 			compute_ai_move = true;
 		}
 
@@ -338,6 +353,7 @@ void		Gomoku::getNextMove(Input &input)
 	else if (player_type == AIPLAYER)
 	{
 		move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
+		times.push_back(ai.getStats().time);
 		play_frame = true;
 	}
 
@@ -406,7 +422,10 @@ void	Gomoku::drawAIInfo(AI &ai, bool debug, bool hint)
 void	Gomoku::drawPlayerPanel(AI &ai, PlayerTurn player, int panel_x)
 {
 	bool	is_turn = (player_turn == player);
+
 	int	color_idx = (player == PLAYER1) ? player1_color_idx : player2_color_idx;
+	std::vector<float>	&times = player == PLAYER1 ? p1_times : p2_times;
+
 	int	indicator_x = panel_x + (WIN_LEFT_OFFSET_PIXELS - TILE_SIZE) / 2;
 	int	indicator_y = 16;
 
@@ -421,12 +440,19 @@ void	Gomoku::drawPlayerPanel(AI &ai, PlayerTurn player, int panel_x)
 	const AI::Stats	&stats = ai.getStats();
 	int	y = indicator_y + TILE_SIZE + 50;
 
+	float	avg = 0;
+	for (float f : times)
+		avg += f;
+	if (!times.empty())
+		avg /= times.size();
+
 	win.drawText("time: " + std::to_string(stats.time) + "s", panel_x + 10, y);
-	win.drawText("depth: " + std::to_string(stats.max_depth), panel_x + 10, y + 24);
-	win.drawText("nodes: " + std::to_string(stats.explored_nodes), panel_x + 10, y + 24 * 2);
-	win.drawText("stop: " + std::to_string(stats.stopped_nodes), panel_x + 10, y + 24 * 3);
-	win.drawText("maxdn: " + std::to_string(stats.max_depth_nodes), panel_x + 10, y + 24 * 4);
-	win.drawText("capture: " + std::to_string(game.getBoard().getCaptureCount(topiece)), panel_x + 10, y + 24 * 5);
+	win.drawText("avg: " + std::to_string(avg) + "s", panel_x + 10, y + 24);
+	win.drawText("depth: " + std::to_string(stats.max_depth), panel_x + 10, y + 24 * 2);
+	win.drawText("nodes: " + std::to_string(stats.explored_nodes), panel_x + 10, y + 24 * 3);
+	win.drawText("stop: " + std::to_string(stats.stopped_nodes), panel_x + 10, y + 24 * 4);
+	win.drawText("maxdn: " + std::to_string(stats.max_depth_nodes), panel_x + 10, y + 24 * 5);
+	win.drawText("capture: " + std::to_string(game.getBoard().getCaptureCount(topiece)), panel_x + 10, y + 24 * 6);
 }
 
 void	Gomoku::drawGamePiece(int x, int y, int color_idx)
@@ -446,12 +472,15 @@ void	Gomoku::drawColorPicker(SDL_Rect r, Color c, bool selected)
 
 void	Gomoku::resetGame()
 {
+	first_place_ai_ai = false;
 	game = Game();
 	ai_1 = AI();
 	ai_2 = AI();
 	player_turn = PLAYER1;
 	turn = 0;
 	compute_ai_move = false;
+	p1_times.clear();
+	p2_times.clear();
 }
 
 bool	Gomoku::isInside(SDL_Rect r, int px, int py) const

@@ -161,7 +161,7 @@ bool    Window::pollEvents(Input &input)
 void    Window::swapBuffers()
 {
 	SDL_RenderPresent(_renderer);
-	clear(0, 0, 0);
+	clear(BEIGE_COLOR.r, BEIGE_COLOR.g, BEIGE_COLOR.b);
 }
 
 void    Window::clear(unsigned char r, unsigned char g, unsigned char b)

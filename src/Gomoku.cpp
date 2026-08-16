@@ -126,6 +126,23 @@ static SDL_Rect	getStartButtonRect()
 	return (SDL_Rect{WINDOW_SIZE_X / 2 - w / 2, 580, w, h});
 }
 
+struct	PanelToggleRects
+{
+	SDL_Rect	debug;
+	SDL_Rect	hint;
+};
+static PanelToggleRects	getPanelToggleRects(int panel_x)
+{
+	int	y = 16 + TILE_SIZE + 42;
+	int	h = 32;
+	int	gap = 6;
+	int	w = (WIN_LEFT_OFFSET_PIXELS - 20 - gap) / 2;
+	return (PanelToggleRects{
+		{panel_x + 10, y, w, h},
+		{panel_x + 10 + w + gap, y, w, h},
+	});
+}
+
 void	Gomoku::renderMenu()
 {
 	win.drawMewen();
@@ -242,6 +259,33 @@ void	Gomoku::updateGame(Input &input)
 		return ;
 	}
 
+	if (mouse_clicked)
+	{
+		PanelToggleRects	p1 = getPanelToggleRects(0);
+		PanelToggleRects	p2 = getPanelToggleRects(WIN_LEFT_OFFSET_PIXELS + WIN_BOARD_SIZE);
+		if (buttonClicked(p1.debug))
+		{
+			player1_debug = !player1_debug;
+			return ;
+		}
+		if (buttonClicked(p1.hint))
+		{
+			player1_hint = !player1_hint;
+			return ;
+		}
+		if (buttonClicked(p2.debug))
+		{
+			player2_debug = !player2_debug;
+			return ;
+		}
+		if (buttonClicked(p2.hint))
+		{
+			player2_hint = !player2_hint;
+			return ;
+		}
+	}
+
+
 	getNextMove(input);
 }
 
@@ -322,8 +366,10 @@ void		Gomoku::getNextMove(Input &input)
 	}
 	else if (player_type == HUMANPLAYER)
 	{
-		if (compute_ai_move == false)
-		{
+		bool	need_ai = (player_turn == BLACK)
+			? (player1_debug || player1_hint)
+			: (player2_debug || player2_hint);
+		if (need_ai && compute_ai_move == false)		{
 			move = ai.bestMove(board, getCurrentPlayer(), 10);
 			times.push_back(ai.getStats().time);
 			compute_ai_move = true;
@@ -367,8 +413,8 @@ void		Gomoku::getNextMove(Input &input)
 
 void Gomoku::playMove(Move move)
 {
-		board.applyMove(move, getOpponent(move.getPiece()));
-		setCurrentPlayer(getOpponent(getCurrentPlayer()));
+	board.applyMove(move, getOpponent(move.getPiece()));
+	setCurrentPlayer(getOpponent(getCurrentPlayer()));
 }
 
 void	Gomoku::drawAIInfo(AI &ai, bool debug, bool hint)
@@ -425,6 +471,8 @@ void	Gomoku::drawPlayerPanel(AI &ai, Piece player, int panel_x)
 	std::vector<float>	&times = player == BLACK ? p1_times : p2_times;
 
 	int	indicator_x = panel_x + (WIN_LEFT_OFFSET_PIXELS - TILE_SIZE) / 2;
+	bool	debug = (player == BLACK) ? player1_debug : player2_debug;
+	bool	hint = (player == BLACK) ? player1_hint : player2_hint;
 	int	indicator_y = 16;
 
 	drawGamePiece(indicator_x, indicator_y, color_idx);
@@ -433,8 +481,13 @@ void	Gomoku::drawPlayerPanel(AI &ai, Piece player, int panel_x)
 
 	win.drawText(player == BLACK ? "Player 1" : "Player 2", panel_x + 10, indicator_y + TILE_SIZE + 14);
 
+
+	PanelToggleRects	toggles = getPanelToggleRects(panel_x);
+	drawButton(toggles.debug, "Debug", debug);
+	drawButton(toggles.hint, "Hint", hint);
+
 	const AI::Stats	&stats = ai.getStats();
-	int	y = indicator_y + TILE_SIZE + 50;
+	int	y = toggles.hint.y + toggles.hint.h + 12;
 
 	float	avg = 0;
 	for (float f : times)
@@ -443,12 +496,15 @@ void	Gomoku::drawPlayerPanel(AI &ai, Piece player, int panel_x)
 		avg /= times.size();
 
 	win.drawText("time: " + std::to_string(stats.time) + "s", panel_x + 10, y);
-	win.drawText("avg: " + std::to_string(avg) + "s", panel_x + 10, y + 24);
-	win.drawText("depth: " + std::to_string(stats.max_depth), panel_x + 10, y + 24 * 2);
-	win.drawText("nodes: " + std::to_string(stats.explored_nodes), panel_x + 10, y + 24 * 3);
-	win.drawText("stop: " + std::to_string(stats.stopped_nodes), panel_x + 10, y + 24 * 4);
-	win.drawText("maxdn: " + std::to_string(stats.max_depth_nodes), panel_x + 10, y + 24 * 5);
-	win.drawText("capture: " + std::to_string(board.getCaptureCount(player)), panel_x + 10, y + 24 * 6);
+	if (debug)
+	{
+		win.drawText("avg: " + std::to_string(avg) + "s", panel_x + 10, y + 24);
+		win.drawText("depth: " + std::to_string(stats.max_depth), panel_x + 10, y + 24 * 2);
+		win.drawText("nodes: " + std::to_string(stats.explored_nodes), panel_x + 10, y + 24 * 3);
+		win.drawText("stop: " + std::to_string(stats.stopped_nodes), panel_x + 10, y + 24 * 4);
+		win.drawText("maxdn: " + std::to_string(stats.max_depth_nodes), panel_x + 10, y + 24 * 5);
+	}
+	win.drawText("capture: " + std::to_string(board.getCaptureCount(player)), panel_x + 10, y + 24 * (debug ? 6 : 1));
 }
 
 void	Gomoku::drawGamePiece(int x, int y, int color_idx)

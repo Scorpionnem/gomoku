@@ -13,7 +13,6 @@ AI::_	AI::v = {};
 
 Chrono	c;
 
-// Poids d'un alignement de `len` pierres consecutives auquel ce coup se raccorde.
 static int lineWeight(int len)
 {
     switch (len)
@@ -22,15 +21,10 @@ static int lineWeight(int len)
         case 1:  return 12;
         case 2:  return 120;
         case 3:  return 1200;
-        default: return 12000; // 4 ou plus
+        default: return 12000;
     }
 }
 
-// Score local et bon marche d'un coup, sans scanner tout le plateau : on
-// regarde uniquement les rayons courts autour de la case jouee. Objectif :
-// donner un ordering "threat-aware" (une completion / un blocage de quatre ou
-// une capture ressortent tres haut) pour que le cap top-K ne coupe jamais le
-// coup refutant.
 int cheapMoveScore(const Board& board, const Move& move, Piece opponent)
 {
     const Piece me = move.getPiece();
@@ -46,8 +40,8 @@ int cheapMoveScore(const Board& board, const Move& move, Piece opponent)
         int mine = board.countRay(p, fwd, me, 4) + board.countRay(p, bwd, me, 4);
         int opp  = board.countRay(p, fwd, opponent, 4) + board.countRay(p, bwd, opponent, 4);
 
-        score += lineWeight(mine);          // developper mes alignements
-        score += (lineWeight(opp) * 3) / 4; // bloquer ceux de l'adversaire
+        score += lineWeight(mine);
+        score += (lineWeight(opp) * 3) / 4;
     }
     return score;
 }
@@ -91,8 +85,6 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
     const Piece opp = Game::opponent(toMove);
     const bool maximizing = (toMove == ai);
 
-	// Le joueur qui vient de jouer est opponent(toMove) == opp.
-	// On evalue toujours du point de vue fixe de `ai`.
 	if (board.isWin(opp))
         return (opp == ai) ? (WIN_SCORE - depth) : (depth - WIN_SCORE);
 
@@ -101,7 +93,7 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
 		AI::v.branches_reach_end++;
         return Heuristic::evaluate(board, ai);
 	}
-	if (c.get() > .5)
+	if (c.get() > TIME_LIMIT)
 	{
 		AI::v.branches_cut_off++;
         return Heuristic::evaluate(board, ai);
@@ -114,9 +106,6 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
 
     orderMoves(board, moves, ai, toMove, false);
 
-    // Cap du facteur de branchement : apres ordering on ne garde que les
-    // MAX_CANDIDATES meilleurs coups. C'est ce qui rend la profondeur 10
-    // atteignable (b^10 explose sinon).
     if ((int)moves.size() > MAX_CANDIDATES)
         moves.resize(MAX_CANDIDATES);
 
@@ -168,10 +157,6 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 
     Move best = moves.front();
 
-	// Iterative deepening: on approfondit tant qu'il reste du budget temps.
-	// Chaque profondeur est jouee entierement; on ne valide son resultat que si
-	// elle a ete terminee avant la limite. Entre deux iterations, on reordonne
-	// les coups par score (meilleur en tete) pour ameliorer l'elagage alpha-beta.
 	for (int depth = 1; depth <= max_depth_; ++depth)
 	{
 		if (c.get() > TIME_LIMIT)
@@ -207,18 +192,14 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 		best = depthBest;
 		v.ai_moves = scored;
 
-		// Reordonne les coups selon les scores de cette profondeur.
 		std::sort(scored.begin(), scored.end(),
 			[](const AI::_::MoveScore& a, const AI::_::MoveScore& b) { return a.score > b.score; });
 		for (size_t i = 0; i < scored.size(); ++i)
 			moves[i] = scored[i].m;
 
-		// Victoire (ou defaite) forcee trouvee: inutile d'approfondir.
 		if (bestScore >= WIN_SCORE - depth || bestScore <= depth - WIN_SCORE)
 			break;
 	}
-
-	v.threads.wait_finish();
 
 	v.time = c.get();
 	if (v.time >= .5)

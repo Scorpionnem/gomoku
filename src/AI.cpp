@@ -9,8 +9,6 @@
 #include <utility>
 #include <vector>
 
-AI::_	AI::v = {};
-
 Chrono	c;
 
 static int lineWeight(int len)
@@ -79,8 +77,8 @@ void AI::orderMoves(Board& board, std::vector<Move>& moves, Piece ai, Piece toMo
 
 int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, int beta)
 {
-	v.explored_nodes++;
-	v.max_depth_explored = std::max(depth, v.max_depth_explored);
+	_stats.explored_nodes++;
+	_stats.max_depth = std::max(depth, _stats.max_depth);
 
     const Piece opp = Game::opponent(toMove);
     const bool maximizing = (toMove == ai);
@@ -88,14 +86,14 @@ int AI::alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, in
 	if (board.isWin(opp))
         return (opp == ai) ? (WIN_SCORE - depth) : (depth - WIN_SCORE);
 
-    if (depth >= v.max_depth)
+    if (depth >= _stats.max_depth)
 	{
-		AI::v.branches_reach_end++;
+		_stats.stopped_nodes++;
         return Heuristic::evaluate(board, ai);
 	}
 	if (c.get() > TIME_LIMIT)
 	{
-		AI::v.branches_cut_off++;
+		_stats.stopped_nodes++;
         return Heuristic::evaluate(board, ai);
 	}
 
@@ -140,11 +138,10 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 {
 	c.start();
 
-	v.max_depth = max_depth_;
-	v.explored_nodes = 0;
-	v.max_depth_explored = 0;
-	v.branches_cut_off = 0;
-	v.branches_reach_end = 0;
+	_stats.max_depth = max_depth_;
+	_stats.explored_nodes = 0;
+	_stats.stopped_nodes = 0;
+	_stats.time = 0;
 
     Board search = board;
     Move moveInstance;
@@ -162,9 +159,9 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 		if (c.get() > TIME_LIMIT)
 			break;
 
-		v.max_depth = depth;
+		_stats.max_depth = depth;
 
-		std::vector<AI::_::MoveScore> scored;
+		std::vector<MoveScore> scored;
 		scored.reserve(moves.size());
 
 		int alpha = INT_MIN;
@@ -178,7 +175,7 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 			int score = alphabeta(search, ai, opp, 0, alpha, INT_MAX);
 			search.undo();
 
-			scored.push_back(AI::_::MoveScore{move, score});
+			scored.push_back(MoveScore{score, move});
 
 			if (score > bestScore) { bestScore = score; depthBest = move; }
 			if (bestScore > alpha) alpha = bestScore;
@@ -190,19 +187,24 @@ Move AI::bestMove(const Board& board, Piece ai, int max_depth_)
 			break;
 
 		best = depthBest;
-		v.ai_moves = scored;
 
 		std::sort(scored.begin(), scored.end(),
-			[](const AI::_::MoveScore& a, const AI::_::MoveScore& b) { return a.score > b.score; });
+			[](const MoveScore& a, const MoveScore& b) { return a.score > b.score; });
 		for (size_t i = 0; i < scored.size(); ++i)
 			moves[i] = scored[i].m;
+
+        _evaluated_moves.clear();
+        for (const MoveScore& move : scored)
+            _evaluated_moves.insert({posToHash(move.m.getPosition()), move});
 
 		if (bestScore >= WIN_SCORE - depth || bestScore <= depth - WIN_SCORE)
 			break;
 	}
 
-	v.time = c.get();
-	if (v.time >= .5)
+
+    _final_move = best;
+	_stats.time = c.get();
+	if (_stats.time >= .5)
 		std::cerr << "WTF OMG WHATS GOING ON NOOO (time over .5)\n";
     return best;
 }

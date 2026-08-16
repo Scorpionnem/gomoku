@@ -8,7 +8,10 @@
 # include "Chrono.hpp"
 # include <climits>
 # include <unordered_map>
+# include <vector>
 # include "math/stdint.hpp"
+
+enum class Bound { EXACT, LOWER, UPPER };
 
 inline constexpr u64	posToHash(Position p)
 {
@@ -38,6 +41,8 @@ class AI
 			double	time;
 			// max depth explored
 			int		max_depth;
+			// depth limit
+			int		depth_limit;
 			// nodes that reached max_depth
 			int		max_depth_nodes;
 			// nodes that were stopped before reaching max_depth
@@ -45,7 +50,19 @@ class AI
 			int		explored_nodes;
 		};
 
+		struct TTEntry {
+			u64   key   = 0;
+			int   depth = -1;
+			int   score = 0;
+			Bound bound = Bound::EXACT;
+			Move  best;
+		};
+
+		static constexpr int TT_SIZE = 1 << 20;
+
 	public:
+		AI() : _tt(TT_SIZE) {}
+		~AI() {}
         static const int            WIN_SCORE = 1000000;
         static constexpr double     TIME_LIMIT = 0.495;
         static const int            MAX_CANDIDATES = 6;
@@ -57,11 +74,18 @@ class AI
 		const Stats&	getStats() {return (_stats);}
 		void			orderMoves(Board& board, std::vector<Move>& moves, Piece ai, Piece toMove, bool useHeuristic);
 		int				alphabeta(Board& board, Piece ai, Piece toMove, int depth, int alpha, int beta);
+		int				cheapMoveScore(const Board& board, const Move& move, Piece opponent);
 	private:
+		static int		toTT(int score, int depth);
+		static int		fromTT(int score, int depth);
+		void			storeTT(u64 key, int height, int depth, int score, Bound bound, const Move& best);
+		void			putTTMoveFirst(std::vector<Move>& moves, const Move& ttMove);
+
+		std::vector<TTEntry>				_tt;
 		std::unordered_map<u64, MoveScore>	_evaluated_moves;
 		Move								_final_move;
-		Stats	_stats;
-		Chrono	_time;
+		Stats								_stats;
+		Chrono								_time;
 };
 
 #endif

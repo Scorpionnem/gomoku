@@ -10,7 +10,8 @@ int main(int ac, char **av)
 	Gomoku::PlayerType	p1_type = Gomoku::HUMANPLAYER;
 	Gomoku::PlayerType	p2_type = Gomoku::AIPLAYER;
 
-	if (ac == 3)
+	int depth = 10;
+	if (ac >= 3)
 	{
 		if (std::string(av[1]) == "ai")
 			p1_type = Gomoku::AIPLAYER;
@@ -26,10 +27,10 @@ int main(int ac, char **av)
 		else
 			return (1);
 	}
-
+	if (ac == 4) depth = std::stoi(av[3]);
 	try
 	{
-		gmk.run(p1_type, p2_type);
+		gmk.run(p1_type, p2_type, depth);
 	} catch (const std::exception &e)
 	{
 		std::cerr << e.what() << std::endl;

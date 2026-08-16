@@ -1,5 +1,35 @@
 #include "Board.hpp"
 #include "Game.hpp"
+#include <random>
+#include <cassert>
+
+u64 Board::ZOB_PIECE[BOARD_SIZE * BOARD_SIZE][2];
+u64 Board::ZOB_CAPTURE[2][16];
+u64 Board::ZOB_SIDE;
+
+void Board::initZobrist() {
+    std::mt19937_64 rng(0x9e3779b97f4a7c15ull); // 2^64 / φ
+    ZOB_SIDE = rng();
+    for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; ++i) {
+        ZOB_PIECE[i][BLACK] = rng();
+        ZOB_PIECE[i][WHITE] = rng();
+    }
+    for (int p = 0; p < 2; ++p) {
+        ZOB_CAPTURE[p][0] = 0;
+        for (int c = 1; c <= 15; ++c)
+            ZOB_CAPTURE[p][c] = rng();
+    }
+}
+
+u64 Board::computeHashFromScratch() const {
+    u64 h = 0;
+    for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; ++i)
+        if (_board[i] == BLACK || _board[i] == WHITE)
+            h ^= ZOB_PIECE[i][_board[i]];
+    h ^= ZOB_CAPTURE[BLACK][std::min(std::max(_captureCount[BLACK], 0), 15)];
+    h ^= ZOB_CAPTURE[WHITE][std::min(std::max(_captureCount[WHITE], 0), 15)];
+    return h;
+}
 
 int Board::countRay(Position position, Position direction, Piece player, int maxSteps) const {
     int count = 0;
@@ -120,6 +150,7 @@ void Board::play(const Move& move) {
 
 void Board::applyMove(const Move& move, Piece opponent) {
     play(move);
+    assert(_hash == computeHashFromScratch());
 
     CaptureInfo info = findCaptures(move, opponent);
     if (info.capturedCount == 0)
@@ -131,6 +162,7 @@ void Board::applyMove(const Move& move, Piece opponent) {
     setLastMove(recorded);
     incrementCaptureCount(recorded.getPiece(), info.capturedCount);
     applyCaptures(info);
+    assert(_hash == computeHashFromScratch());
 }
 
 void Board::undo() {
@@ -146,6 +178,7 @@ void Board::undo() {
 
     setPiece(last_move.getPosition(), EMPTY);
     _history.pop_back();
+    assert(_hash == computeHashFromScratch());
 }
 
 CaptureInfo Board::findCaptures(const Move& m, Piece opponent) const {

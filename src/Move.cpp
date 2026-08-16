@@ -34,7 +34,7 @@ std::vector<Move> Move::getNearbyMoves(const Board& board, Piece player) {
     return moves;
 }
 
-std::vector<Move> Move::getIllegalMoves(Board& board, Piece player) const {
+std::vector<Move> Move::getIllegalMoves(Board& board, Piece player) {
     std::vector<Move> illegal;
     for (Move& m : getNearbyMoves(board, player))
         if (isDoubleThree(board, m, player)) illegal.push_back(m);

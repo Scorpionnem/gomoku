@@ -45,7 +45,7 @@ void		Gomoku::getAction(Input &input)
 
 		if (compute_ai_move == false)
 		{
-			move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
+			move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), depth);
 			compute_ai_move = true;
 		}
 
@@ -69,7 +69,7 @@ void		Gomoku::getAction(Input &input)
 	}
 	else if (player_type == AIPLAYER)
 	{
-		move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), 10);
+		move = ai.bestMove(game.getBoard(), game.getCurrentPlayer(), depth);
 		play_frame = true;
 	}
 
@@ -126,22 +126,21 @@ void	Gomoku::updateGame(Input &input)
 {
 	win.drawBoard();
 
-	Move moveInstance;
-	auto illegalMoves = moveInstance.getIllegalMoves(
+	auto illegalMoves = Move::getIllegalMoves(
 		game.getBoard(),
 		game.getCurrentPlayer()
 	);
 	for (Move& move : illegalMoves)
 		drawPiece(move.getPosition(), RED_COLOR);
 
-	if (player_turn == PLAYER1)
-	{
-		drawAIDebug(ai_1, input);
-	}
-	else
-	{
-		drawAIDebug(ai_2, input);
-	}
+	// if (player_turn == PLAYER1)
+	// {
+	// 	drawAIDebug(ai_1, input);
+	// }
+	// else
+	// {
+	// 	drawAIDebug(ai_2, input);
+	// }
 
 	for (int x = 0; x < BOARD_SIZE; x++)
 		for (int y = 0; y < BOARD_SIZE; y++)

@@ -53,7 +53,7 @@ class Move {
         void                    setType(MoveType type) { _type = type; }
         void                    setRemovedPositions(const std::vector<Position>& removedPositions) { _removedPositions = removedPositions; }
 
-        std::vector<Move>       getIllegalMoves(Board& board, Piece player) const;
+        static std::vector<Move>       getIllegalMoves(Board& board, Piece player);
         static std::vector<Move>       getLegalMoves(Board& board, Piece player);
 		static std::vector<Move> getNearbyMoves(const Board& board, Piece player);
         static bool             isIllegalMove(const Board& board, const Move& m);

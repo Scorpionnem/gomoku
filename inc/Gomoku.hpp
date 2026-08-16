@@ -7,7 +7,6 @@
 
 # include <iostream>
 # define BLACK_COLOR Color{0, 0, 0}
-# define WHITE_COLOR Color{255, 255, 255}
 # define RED_COLOR Color{255, 0, 0}
 # define GREEN_COLOR Color{0, 255, 0}
 # define BROWN_COLOR Color{230, 167, 80}
@@ -46,11 +45,11 @@ class	Gomoku
 			GAME,
 		};
 	public:
-		void	run(PlayerType p1_type = HUMANPLAYER, PlayerType p2_type = AIPLAYER)
+		void	run(PlayerType p1_type = HUMANPLAYER, PlayerType p2_type = AIPLAYER, int depth = 10)
 		{
 			player1_type = p1_type;
 			player2_type = p2_type;
-
+			this->depth = depth;
 			init();
 			loop();
 		}
@@ -73,6 +72,7 @@ class	Gomoku
 
 		PlayerType	player1_type = AIPLAYER;
 		PlayerType	player2_type = HUMANPLAYER;
+		int			depth = 10;
 
 		AI		ai_1;
 		AI		ai_2;

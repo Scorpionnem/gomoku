@@ -4,6 +4,9 @@ Implémentation du Gomoku (variante 42) en C++20, avec une interface graphique S
 
 Le plateau est un goban **19×19**. Le but est d’aligner **cinq pierres** ou de capturer **cinq paires** adverses (10 pierres). L’IA doit répondre en **moins de 500 ms**.
 
+<img width="994" height="743" alt="Screenshot from 2026-08-18 16-47-53" src="https://github.com/user-attachments/assets/9806ca73-9924-4665-a0a6-a65790db1eec" />
+
+
 ## Règles
 
 - **Alignement** : cinq pierres consécutives (horizontal, vertical ou diagonal). Un alignement n’est pas gagnant tant que l’adversaire peut encore le casser en capturant une des pierres de la ligne.
